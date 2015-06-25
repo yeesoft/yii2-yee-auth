@@ -1,6 +1,6 @@
 <?php
 
-namespace yeesoft\usermanagement\models\forms;
+namespace yeesoft\auth\models\forms;
 
 use yeesoft\helpers\LittleBigHelper;
 use yeesoft\usermanagement\models\User;

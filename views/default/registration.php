@@ -32,7 +32,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<?= $form->field($model, 'captcha')->widget(Captcha::className(), [
 		'template' => '<div class="row"><div class="col-sm-2">{image}</div><div class="col-sm-3">{input}</div></div>',
-		'captchaAction'=>['/auth/captcha']
+		'captchaAction'=>[\yii\helpers\Url::to('/auth/captcha') ]
 	]) ?>
 
 	<div class="form-group">

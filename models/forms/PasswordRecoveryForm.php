@@ -1,6 +1,6 @@
 <?php
 
-namespace yeesoft\usermanagement\models\forms;
+namespace yeesoft\auth\models\forms;
 
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
@@ -30,7 +30,7 @@ class PasswordRecoveryForm extends Model
     public function rules()
     {
         return [
-            ['captcha', 'captcha', 'captchaAction' => '/auth/captcha'],
+            ['captcha', 'captcha', 'captchaAction' => '/auth/default/captcha'],
             [['email', 'captcha'], 'required'],
             ['email', 'trim'],
             ['email', 'email'],

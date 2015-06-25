@@ -1,6 +1,6 @@
 <?php
 
-namespace yeesoft\usermanagement\models\forms;
+namespace yeesoft\auth\models\forms;
 
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
@@ -21,7 +21,7 @@ class RegistrationForm extends Model
     public function rules()
     {
         $rules = [
-            ['captcha', 'captcha', 'captchaAction' => '/auth/captcha'],
+            ['captcha', 'captcha', 'captchaAction' => '/auth/default/captcha'],
             [['username', 'password', 'repeat_password', 'captcha'], 'required'],
             [['username', 'password', 'repeat_password'], 'trim'],
             ['username', 'unique',
