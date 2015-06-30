@@ -7,7 +7,7 @@ use yii\helpers\Html;
 
 /**
  * @var yii\web\View $this
- * @var webvimark\modules\UserManagement\models\forms\PasswordRecoveryForm $model
+ * @var yeesoft\auth\models\forms\PasswordRecoveryForm $model
  */
 
 $this->title = UserManagementModule::t('front', 'Password recovery');

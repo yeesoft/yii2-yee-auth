@@ -7,7 +7,7 @@ use yii\helpers\Html;
 
 /**
  * @var yii\web\View $this
- * @var webvimark\modules\UserManagement\models\forms\RegistrationForm $model
+ * @var yeesoft\auth\models\forms\RegistrationForm $model
  */
 
 $this->title = UserManagementModule::t('front', 'Registration');

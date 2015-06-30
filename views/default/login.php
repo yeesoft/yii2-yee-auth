@@ -2,7 +2,7 @@
 
 /**
  * @var $this yii\web\View
- * @var $model webvimark\modules\UserManagement\models\forms\LoginForm
+ * @var $model yeesoft\auth\models\forms\LoginForm
  */
 use yeesoft\usermanagement\components\GhostHtml;
 use yeesoft\usermanagement\UserManagementModule;

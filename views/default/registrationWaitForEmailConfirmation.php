@@ -4,7 +4,7 @@ use yeesoft\usermanagement\UserManagementModule;
 
 /**
  * @var yii\web\View $this
- * @var webvimark\modules\UserManagement\models\User $user
+ * @var yeesoft\usermanagement\models\User $user
  */
 
 $this->title = UserManagementModule::t('front', 'Registration - confirm your e-mail');
