@@ -1,0 +1,58 @@
+.auth-clients { 
+    overflow: hidden;
+    margin: 0.5em 0px !important;
+    padding: 0 !important;
+}
+.auth-client {
+    display: inline-block;
+    height: 26px;
+    width: 32%;
+    min-width: 110px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin: 0px 5px 5px 0px !important;
+    text-align:center;
+}.auth-client::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    float: left;
+}
+
+.auth-client a{
+    color: #fff !important;
+    padding: 3px 5px;
+    font-size:16px;
+}.auth-client a:hover{
+    text-decoration: none;
+}.auth-client a:focus{
+    outline: none !important;
+}
+
+.auth-client.google {
+    border:1px solid #d34836;
+    background: #e15947;
+}.auth-client.google:hover {
+    background: #d34836;
+}.auth-client.google::before {
+    background: #d34836 url(authicons.png) 0 0 no-repeat;
+}
+
+.auth-client.facebook {
+    border:1px solid #3b5998;
+    background: #4f6daa;
+}.auth-client.facebook:hover {
+    background: #3b5998;
+}.auth-client.facebook::before {
+    background: #3b5998 url(authicons.png) 0 -24px no-repeat;
+}
+
+.auth-client.twitter {
+    border:1px solid #4099ff;
+    background: #64acff;
+}.auth-client.twitter:hover {
+    background: #4099ff;
+}.auth-client.twitter::before {
+    background: #4099ff url(authicons.png) 0 -48px no-repeat;
+}

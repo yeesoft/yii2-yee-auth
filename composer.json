@@ -9,6 +9,7 @@
         }
     ],
     "require": {
+        "yiisoft/yii2-authclient": "*",
         "yeesoft/yii2-yee-base": "dev-master"
     },
     "autoload": {

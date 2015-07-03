@@ -6,6 +6,7 @@
  */
 use yeesoft\usermanagement\components\GhostHtml;
 use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\auth\widgets\AuthChoice;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 ?>
@@ -15,8 +16,9 @@ use yii\helpers\Html;
         <div class="col-md-6 col-md-offset-2">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title"><?= UserManagementModule::t('front',
-    'Authorization') ?></h3>
+                    <h3 class="panel-title"><?=
+                        UserManagementModule::t('front', 'Authorization')
+                        ?></h3>
                 </div>
                 <div class="panel-body">
 
@@ -52,29 +54,40 @@ use yii\helpers\Html;
                     )
                     ?>
 
+
+                    <div class="row registration-block">
+                        <div class="col-sm-12">
+                            <?=
+                            AuthChoice::widget([
+                                'baseAuthUrl' => ['default/oauth'],
+                                'popupMode' => false,
+                            ])
+                            ?>
+                        </div>
+                    </div>
+
                     <div class="row registration-block">
                         <div class="col-sm-6">
                             <?=
-                            GhostHtml::a(
+                            Html::a(
                                 UserManagementModule::t('front', "Registration"),
-                                ['/auth/registration']
+                                ['default/registration']
                             )
                             ?>
                         </div>
                         <div class="col-sm-6 text-right">
-<?=
-GhostHtml::a(
-    UserManagementModule::t('front', "Forgot password ?"),
-    ['/auth/password-recovery']
-)
-?>
+                            <?=
+                            Html::a(
+                                UserManagementModule::t('front',
+                                    "Forgot password ?"),
+                                ['default/password-recovery']
+                            )
+                            ?>
                         </div>
                     </div>
 
 
-
-
-<?php ActiveForm::end() ?>
+                    <?php ActiveForm::end() ?>
                 </div>
             </div>
         </div>
