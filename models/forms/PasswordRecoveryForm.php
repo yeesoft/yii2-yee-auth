@@ -4,8 +4,8 @@ namespace yeesoft\auth\models\forms;
 
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
-use yii\base\Model;
 use Yii;
+use yii\base\Model;
 
 class PasswordRecoveryForm extends Model
 {
@@ -51,9 +51,9 @@ class PasswordRecoveryForm extends Model
         }
 
         $user = User::findOne([
-                'email' => $this->email,
-                'email_confirmed' => 1,
-                'status' => User::STATUS_ACTIVE,
+            'email' => $this->email,
+            'email_confirmed' => 1,
+            'status' => User::STATUS_ACTIVE,
         ]);
 
         if ($user) {
@@ -82,7 +82,7 @@ class PasswordRecoveryForm extends Model
      */
     public function sendEmail($performValidation = true)
     {
-        if ($performValidation AND ! $this->validate()) {
+        if ($performValidation AND !$this->validate()) {
             return false;
         }
 
@@ -90,11 +90,11 @@ class PasswordRecoveryForm extends Model
         $this->user->save(false);
 
         return Yii::$app->mailer->compose(Yii::$app->getModule('user-management')->mailerOptions['passwordRecoveryFormViewFile'],
-                    ['user' => $this->user])
-                ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
-                ->setTo($this->email)
-                ->setSubject(UserManagementModule::t('front',
-                        'Password reset for').' '.Yii::$app->name)
-                ->send();
+            ['user' => $this->user])
+            ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
+            ->setTo($this->email)
+            ->setSubject(UserManagementModule::t('front',
+                    'Password reset for') . ' ' . Yii::$app->name)
+            ->send();
     }
 }

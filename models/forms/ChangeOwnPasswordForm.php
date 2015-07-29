@@ -4,8 +4,8 @@ namespace yeesoft\auth\models\forms;
 
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
-use yii\base\Model;
 use Yii;
+use yii\base\Model;
 
 class ChangeOwnPasswordForm extends Model
 {
@@ -68,7 +68,8 @@ class ChangeOwnPasswordForm extends Model
         }
 
         if (!Yii::$app->security->validatePassword($this->current_password,
-                $this->user->password_hash)) {
+            $this->user->password_hash)
+        ) {
             $this->addError('current_password',
                 UserManagementModule::t('back', "Wrong password"));
         }
@@ -81,7 +82,7 @@ class ChangeOwnPasswordForm extends Model
      */
     public function changePassword($performValidation = true)
     {
-        if ($performValidation AND ! $this->validate()) {
+        if ($performValidation AND !$this->validate()) {
             return false;
         }
 

@@ -5,15 +5,15 @@ namespace yeesoft\auth\models\forms;
 use yeesoft\helpers\LittleBigHelper;
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
-use yii\base\Model;
 use Yii;
+use yii\base\Model;
 
 class LoginForm extends Model
 {
     public $username;
     public $password;
     public $rememberMe = false;
-    private $_user     = false;
+    private $_user = false;
 
     /**
      * @inheritdoc
@@ -88,7 +88,7 @@ class LoginForm extends Model
     {
         if ($this->validate()) {
             return Yii::$app->user->login($this->getUser(),
-                    $this->rememberMe ? 3600 * 24 * 30 : 0);
+                $this->rememberMe ? 3600 * 24 * 30 : 0);
         } else {
             return false;
         }

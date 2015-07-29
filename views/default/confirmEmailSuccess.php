@@ -12,8 +12,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="change-own-password-success">
 
-	<div class="alert alert-success text-center">
-		<?= UserManagementModule::t('front', 'E-mail confirmed') ?> - <b><?= $user->email ?></b>
-	</div>
+    <div class="alert alert-success text-center">
+        <?= UserManagementModule::t('front', 'E-mail confirmed') ?> - <b><?= $user->email ?></b>
+    </div>
 
 </div>

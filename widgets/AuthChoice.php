@@ -3,12 +3,12 @@
 namespace yeesoft\auth\widgets;
 
 use Yii;
-use yii\base\InvalidConfigException;
-use yii\base\Widget;
-use yii\helpers\Html;
 use yii\authclient\ClientInterface;
 use yii\authclient\widgets\AuthChoice as BaseAuthChoice;
 use yii\authclient\widgets\AuthChoiceItem;
+use yii\base\InvalidConfigException;
+use yii\base\Widget;
+use yii\helpers\Html;
 
 /**
  * @inheritdoc
@@ -37,7 +37,7 @@ class AuthChoice extends BaseAuthChoice
     {
         if ($text === null) {
             $text = Html::tag('span', $client->getTitle(),
-                    ['class' => 'auth-title']);
+                ['class' => 'auth-title']);
         }
         if (!array_key_exists('class', $htmlOptions)) {
             $htmlOptions['class'] = $client->getName();
@@ -64,10 +64,10 @@ class AuthChoice extends BaseAuthChoice
             /* @var $widgetClass Widget */
             $widgetClass = $widgetConfig['class'];
             if (!(is_subclass_of($widgetClass, AuthChoiceItem::className()))) {
-                throw new InvalidConfigException('Item widget class must be subclass of "'.AuthChoiceItem::className().'"');
+                throw new InvalidConfigException('Item widget class must be subclass of "' . AuthChoiceItem::className() . '"');
             }
             unset($widgetConfig['class']);
-            $widgetConfig['client']     = $client;
+            $widgetConfig['client'] = $client;
             $widgetConfig['authChoice'] = $this;
             echo $widgetClass::widget($widgetConfig);
         }
@@ -81,7 +81,7 @@ class AuthChoice extends BaseAuthChoice
         echo Html::beginTag('ul', ['class' => 'auth-clients clear']);
         foreach ($this->getClients() as $externalService) {
             echo Html::beginTag('li',
-                ['class' => 'auth-client '.$externalService->getName()]);
+                ['class' => 'auth-client ' . $externalService->getName()]);
             $this->clientLink($externalService);
             echo Html::endTag('li');
         }

@@ -4,8 +4,8 @@ namespace yeesoft\auth\models\forms;
 
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
-use yii\base\Model;
 use Yii;
+use yii\base\Model;
 use yii\helpers\Html;
 
 class RegistrationForm extends Model
@@ -62,7 +62,7 @@ class RegistrationForm extends Model
     {
         return [
             'username' => Yii::$app->getModule('user-management')->useEmailAsLogin
-                    ? 'E-mail' : UserManagementModule::t('front', 'Login'),
+                ? 'E-mail' : UserManagementModule::t('front', 'Login'),
             'password' => UserManagementModule::t('front', 'Password'),
             'repeat_password' => UserManagementModule::t('front',
                 'Repeat password'),
@@ -77,11 +77,11 @@ class RegistrationForm extends Model
      */
     public function registerUser($performValidation = true)
     {
-        if ($performValidation AND ! $this->validate()) {
+        if ($performValidation AND !$this->validate()) {
             return false;
         }
 
-        $user           = new User();
+        $user = new User();
         $user->password = $this->password;
 
         if (Yii::$app->getModule('user-management')->useEmailAsLogin) {
@@ -128,7 +128,7 @@ class RegistrationForm extends Model
      */
     protected function saveProfile($user)
     {
-        
+
     }
 
     /**
@@ -139,12 +139,12 @@ class RegistrationForm extends Model
     protected function sendConfirmationEmail($user)
     {
         return Yii::$app->mailer->compose(Yii::$app->getModule('user-management')->mailerOptions['registrationFormViewFile'],
-                    ['user' => $user])
-                ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
-                ->setTo($user->email)
-                ->setSubject(UserManagementModule::t('front',
-                        'E-mail confirmation for').' '.Yii::$app->name)
-                ->send();
+            ['user' => $user])
+            ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
+            ->setTo($user->email)
+            ->setSubject(UserManagementModule::t('front',
+                    'E-mail confirmation for') . ' ' . Yii::$app->name)
+            ->send();
     }
 
     /**
@@ -159,13 +159,13 @@ class RegistrationForm extends Model
         $user = User::findInactiveByConfirmationToken($token);
 
         if ($user) {
-            $user->username        = $user->email;
-            $user->status          = User::STATUS_ACTIVE;
+            $user->username = $user->email;
+            $user->status = User::STATUS_ACTIVE;
             $user->email_confirmed = 1;
             $user->removeConfirmationToken();
             $user->save(false);
 
-            $roles = (array) Yii::$app->getModule('user-management')->rolesAfterRegistration;
+            $roles = (array)Yii::$app->getModule('user-management')->rolesAfterRegistration;
 
             foreach ($roles as $role) {
                 User::assignRole($user->id, $role);

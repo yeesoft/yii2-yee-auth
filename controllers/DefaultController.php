@@ -2,22 +2,22 @@
 
 namespace yeesoft\auth\controllers;
 
-use Yii;
-use yii\web\Response;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
-use yii\widgets\ActiveForm;
-use yii\helpers\ArrayHelper;
 use yeesoft\auth\models\Auth;
-use yeesoft\base\controllers\BaseController;
-use yeesoft\usermanagement\UserManagementModule;
-use yeesoft\usermanagement\components\UserAuthEvent;
 use yeesoft\auth\models\forms\ChangeOwnPasswordForm;
 use yeesoft\auth\models\forms\ConfirmEmailForm;
 use yeesoft\auth\models\forms\LoginForm;
 use yeesoft\auth\models\forms\PasswordRecoveryForm;
 use yeesoft\auth\models\forms\RegistrationForm;
+use yeesoft\base\controllers\BaseController;
+use yeesoft\usermanagement\components\UserAuthEvent;
 use yeesoft\usermanagement\models\User;
+use yeesoft\usermanagement\UserManagementModule;
+use Yii;
+use yii\helpers\ArrayHelper;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
+use yii\web\Response;
+use yii\widgets\ActiveForm;
 
 class DefaultController extends BaseController
 {
@@ -61,17 +61,14 @@ class DefaultController extends BaseController
         $authClient = $client->getId();
 
 
-
-
-
         /* print_r($attributes);
           die; */
 
         /* @var $auth Auth */
         $auth = Auth::find()->where([
-                'source' => $client->getId(),
-                'source_id' => $attributes['id'],
-            ])->one();
+            'source' => $client->getId(),
+            'source_id' => $attributes['id'],
+        ])->one();
 
         if (Yii::$app->user->isGuest) {
             if ($auth) { // login
@@ -85,14 +82,14 @@ class DefaultController extends BaseController
                 if ($emailPath && $email && User::find()->where(['email' => $email])->exists()) {
                     Yii::$app->getSession()->setFlash('error',
                         [
-                        Yii::t('app',
-                            "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.",
-                            ['client' => $client->getTitle()]),
-                    ]);
+                            Yii::t('app',
+                                "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.",
+                                ['client' => $client->getTitle()]),
+                        ]);
                     Yii::$app->getResponse()->redirect(['auth/default/login']);
                 } else {
-                    $password    = Yii::$app->security->generateRandomString(6);
-                    $user        = new User([
+                    $password = Yii::$app->security->generateRandomString(6);
+                    $user = new User([
                         'username' => ArrayHelper::getValue($attributes,
                             $usernamePath),
                         'email' => $email,
@@ -105,7 +102,7 @@ class DefaultController extends BaseController
                         $auth = new Auth([
                             'user_id' => $user->id,
                             'source' => $client->getId(),
-                            'source_id' => (string) $attributes['id'],
+                            'source_id' => (string)$attributes['id'],
                         ]);
                         if ($auth->save()) {
                             $transaction->commit();
@@ -227,18 +224,20 @@ class DefaultController extends BaseController
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
             // Trigger event "before registration" and checks if it's valid
             if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_REGISTRATION,
-                    ['model' => $model])) {
+                ['model' => $model])
+            ) {
                 $user = $model->registerUser(false);
 
                 // Trigger event "after registration" and checks if it's valid
                 if ($this->triggerModuleEvent(UserAuthEvent::AFTER_REGISTRATION,
-                        ['model' => $model, 'user' => $user])) {
+                    ['model' => $model, 'user' => $user])
+                ) {
                     if ($user) {
                         if (Yii::$app->getModule('user-management')->useEmailAsLogin AND Yii::$app->getModule('user-management')->emailConfirmationRequired) {
                             return $this->renderIsAjax('registrationWaitForEmailConfirmation',
-                                    compact('user'));
+                                compact('user'));
                         } else {
-                            $roles = (array) Yii::$app->getModule('user-management')->rolesAfterRegistration;
+                            $roles = (array)Yii::$app->getModule('user-management')->rolesAfterRegistration;
 
                             foreach ($roles as $role) {
                                 User::assignRole($user->id, $role);
@@ -268,13 +267,13 @@ class DefaultController extends BaseController
     {
         if (Yii::$app->getModule('user-management')->useEmailAsLogin AND Yii::$app->getModule('user-management')->emailConfirmationRequired) {
             $registrationFormClass = Yii::$app->getModule('user-management')->registrationFormClass;
-            $model                 = new $registrationFormClass;
+            $model = new $registrationFormClass;
 
             $user = $model->checkConfirmationToken($token);
 
             if ($user) {
                 return $this->renderIsAjax('confirmEmailSuccess',
-                        compact('user'));
+                    compact('user'));
             }
 
             throw new NotFoundHttpException(UserManagementModule::t('front',
@@ -309,10 +308,12 @@ class DefaultController extends BaseController
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
             if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_PASSWORD_RECOVERY_REQUEST,
-                    ['model' => $model])) {
+                ['model' => $model])
+            ) {
                 if ($model->sendEmail(false)) {
                     if ($this->triggerModuleEvent(UserAuthEvent::AFTER_PASSWORD_RECOVERY_REQUEST,
-                            ['model' => $model])) {
+                        ['model' => $model])
+                    ) {
                         return $this->renderIsAjax('passwordRecoverySuccess');
                     }
                 } else {
@@ -354,11 +355,13 @@ class DefaultController extends BaseController
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
             if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_PASSWORD_RECOVERY_COMPLETE,
-                    ['model' => $model])) {
+                ['model' => $model])
+            ) {
                 $model->changePassword(false);
 
                 if ($this->triggerModuleEvent(UserAuthEvent::AFTER_PASSWORD_RECOVERY_COMPLETE,
-                        ['model' => $model])) {
+                    ['model' => $model])
+                ) {
                     return $this->renderIsAjax('changeOwnPasswordSuccess');
                 }
             }
@@ -394,10 +397,12 @@ class DefaultController extends BaseController
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
             if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_EMAIL_CONFIRMATION_REQUEST,
-                    ['model' => $model])) {
+                ['model' => $model])
+            ) {
                 if ($model->sendEmail(false)) {
                     if ($this->triggerModuleEvent(UserAuthEvent::AFTER_EMAIL_CONFIRMATION_REQUEST,
-                            ['model' => $model])) {
+                        ['model' => $model])
+                    ) {
                         return $this->refresh();
                     }
                 } else {
@@ -439,7 +444,7 @@ class DefaultController extends BaseController
      * Universal method for triggering events like "before registration", "after registration" and so on
      *
      * @param string $eventName
-     * @param array  $data
+     * @param array $data
      *
      * @return bool
      */

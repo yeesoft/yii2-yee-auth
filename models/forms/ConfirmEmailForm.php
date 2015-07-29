@@ -4,8 +4,8 @@ namespace yeesoft\auth\models\forms;
 
 use yeesoft\usermanagement\models\User;
 use yeesoft\usermanagement\UserManagementModule;
-use yii\base\Model;
 use Yii;
+use yii\base\Model;
 
 class ConfirmEmailForm extends Model
 {
@@ -25,7 +25,8 @@ class ConfirmEmailForm extends Model
     public function init()
     {
         if ($this->user->confirmation_token !== null AND $this->getTokenTimeLeft()
-            == 0) {
+            == 0
+        ) {
             $this->user->removeConfirmationToken();
             $this->user->save(false);
         }
@@ -51,8 +52,8 @@ class ConfirmEmailForm extends Model
     {
         if ($this->email) {
             $exists = User::findOne([
-                    'email' => $this->email,
-                    'email_confirmed' => 1,
+                'email' => $this->email,
+                'email_confirmed' => 1,
             ]);
 
             if ($exists) {
@@ -85,8 +86,8 @@ class ConfirmEmailForm extends Model
         if ($this->user AND $this->user->confirmation_token) {
             $expire = Yii::$app->getModule('user-management')->confirmationTokenExpire;
 
-            $parts     = explode('_', $this->user->confirmation_token);
-            $timestamp = (int) end($parts);
+            $parts = explode('_', $this->user->confirmation_token);
+            $timestamp = (int)end($parts);
 
             $timeLeft = $timestamp + $expire - time();
 
@@ -107,7 +108,7 @@ class ConfirmEmailForm extends Model
      */
     public function sendEmail($performValidation = true)
     {
-        if ($performValidation AND ! $this->validate()) {
+        if ($performValidation AND !$this->validate()) {
             return false;
         }
 
@@ -116,11 +117,11 @@ class ConfirmEmailForm extends Model
         $this->user->save(false);
 
         return Yii::$app->mailer->compose(Yii::$app->getModule('user-management')->mailerOptions['confirmEmailFormViewFile'],
-                    ['user' => $this->user])
-                ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
-                ->setTo($this->email)
-                ->setSubject(UserManagementModule::t('front',
-                        'E-mail confirmation for').' '.Yii::$app->name)
-                ->send();
+            ['user' => $this->user])
+            ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
+            ->setTo($this->email)
+            ->setSubject(UserManagementModule::t('front',
+                    'E-mail confirmation for') . ' ' . Yii::$app->name)
+            ->send();
     }
 }
