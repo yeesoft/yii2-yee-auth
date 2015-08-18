@@ -5,7 +5,7 @@
  * @var $model yeesoft\auth\models\forms\LoginForm
  */
 use yeesoft\auth\widgets\AuthChoice;
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
@@ -16,9 +16,7 @@ use yii\helpers\Html;
             <div class="col-md-6 col-md-offset-2">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title"><?=
-                            UserManagementModule::t('front', 'Authorization')
-                            ?></h3>
+                        <h3 class="panel-title"><?= Yee::t('front', 'Authorization') ?></h3>
                     </div>
                     <div class="panel-body">
 
@@ -48,10 +46,7 @@ use yii\helpers\Html;
                         <?= $form->field($model, 'rememberMe')->checkbox(['value' => true]) ?>
 
                         <?=
-                        Html::submitButton(
-                            UserManagementModule::t('front', 'Login'),
-                            ['class' => 'btn btn-lg btn-primary btn-block']
-                        )
+                        Html::submitButton(Yee::t('front', 'Login'), ['class' => 'btn btn-lg btn-primary btn-block'])
                         ?>
 
 
@@ -69,23 +64,15 @@ use yii\helpers\Html;
                         <div class="row registration-block">
                             <div class="col-sm-6">
                                 <?=
-                                Html::a(
-                                    UserManagementModule::t('front', "Registration"),
-                                    ['default/registration']
-                                )
+                                Html::a(Yee::t('front', "Registration"), ['default/registration'])
                                 ?>
                             </div>
                             <div class="col-sm-6 text-right">
                                 <?=
-                                Html::a(
-                                    UserManagementModule::t('front',
-                                        "Forgot password ?"),
-                                    ['default/password-recovery']
-                                )
+                                Html::a(Yee::t('front', "Forgot password ?"), ['default/password-recovery'])
                                 ?>
                             </div>
                         </div>
-
 
                         <?php ActiveForm::end() ?>
                     </div>

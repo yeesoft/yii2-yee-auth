@@ -1,6 +1,6 @@
 {
   "name": "yeesoft/yii2-yee-auth",
-  "description": "Yee Auth",
+  "description": "Yee Auth Module",
   "license": "BSD-3-Clause",
   "authors": [
     {
@@ -10,7 +10,7 @@
   ],
   "require": {
     "yiisoft/yii2-authclient": "*",
-    "yeesoft/yii2-yee-base": "dev-master"
+    "yeesoft/yii2-yee-core": "dev-master"
   },
   "autoload": {
     "psr-4": {

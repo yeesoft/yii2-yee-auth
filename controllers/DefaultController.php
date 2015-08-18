@@ -8,10 +8,10 @@ use yeesoft\auth\models\forms\ConfirmEmailForm;
 use yeesoft\auth\models\forms\LoginForm;
 use yeesoft\auth\models\forms\PasswordRecoveryForm;
 use yeesoft\auth\models\forms\RegistrationForm;
-use yeesoft\base\controllers\BaseController;
-use yeesoft\usermanagement\components\UserAuthEvent;
-use yeesoft\usermanagement\models\User;
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\components\AuthEvent;
+use yeesoft\controllers\BaseController;
+use yeesoft\models\User;
+use yeesoft\Yee;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\ForbiddenHttpException;
@@ -33,7 +33,7 @@ class DefaultController extends BaseController
     public function actions()
     {
         return [
-            'captcha' => Yii::$app->getModule('user-management')->captchaOptions,
+            'captcha' => Yii::$app->getModule('yee')->captchaOptions,
             'oauth' => [
                 'class' => 'yii\authclient\AuthAction',
                 'successCallback' => [$this, 'onAuthSuccess'],
@@ -60,10 +60,6 @@ class DefaultController extends BaseController
         $attributes = $client->getUserAttributes();
         $authClient = $client->getId();
 
-
-        /* print_r($attributes);
-          die; */
-
         /* @var $auth Auth */
         $auth = Auth::find()->where([
             'source' => $client->getId(),
@@ -82,8 +78,7 @@ class DefaultController extends BaseController
                 if ($emailPath && $email && User::find()->where(['email' => $email])->exists()) {
                     Yii::$app->getSession()->setFlash('error',
                         [
-                            Yii::t('app',
-                                "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.",
+                            Yii::t('app', "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.",
                                 ['client' => $client->getTitle()]),
                         ]);
                     Yii::$app->getResponse()->redirect(['auth/default/login']);
@@ -182,7 +177,6 @@ class DefaultController extends BaseController
 
         $model = new ChangeOwnPasswordForm(['user' => $user]);
 
-
         if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
@@ -223,21 +217,21 @@ class DefaultController extends BaseController
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
             // Trigger event "before registration" and checks if it's valid
-            if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_REGISTRATION,
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_REGISTRATION,
                 ['model' => $model])
             ) {
                 $user = $model->registerUser(false);
 
                 // Trigger event "after registration" and checks if it's valid
-                if ($this->triggerModuleEvent(UserAuthEvent::AFTER_REGISTRATION,
+                if ($this->triggerModuleEvent(AuthEvent::AFTER_REGISTRATION,
                     ['model' => $model, 'user' => $user])
                 ) {
                     if ($user) {
-                        if (Yii::$app->getModule('user-management')->useEmailAsLogin AND Yii::$app->getModule('user-management')->emailConfirmationRequired) {
+                        if (Yii::$app->getModule('yee')->useEmailAsLogin AND Yii::$app->getModule('yee')->emailConfirmationRequired) {
                             return $this->renderIsAjax('registrationWaitForEmailConfirmation',
                                 compact('user'));
                         } else {
-                            $roles = (array)Yii::$app->getModule('user-management')->rolesAfterRegistration;
+                            $roles = (array)Yii::$app->getModule('yee')->rolesAfterRegistration;
 
                             foreach ($roles as $role) {
                                 User::assignRole($user->id, $role);
@@ -265,8 +259,8 @@ class DefaultController extends BaseController
      */
     public function actionConfirmRegistrationEmail($token)
     {
-        if (Yii::$app->getModule('user-management')->useEmailAsLogin AND Yii::$app->getModule('user-management')->emailConfirmationRequired) {
-            $registrationFormClass = Yii::$app->getModule('user-management')->registrationFormClass;
+        if (Yii::$app->getModule('yee')->useEmailAsLogin AND Yii::$app->getModule('yee')->emailConfirmationRequired) {
+            $registrationFormClass = Yii::$app->getModule('yee')->registrationFormClass;
             $model = new $registrationFormClass;
 
             $user = $model->checkConfirmationToken($token);
@@ -276,7 +270,7 @@ class DefaultController extends BaseController
                     compact('user'));
             }
 
-            throw new NotFoundHttpException(UserManagementModule::t('front',
+            throw new NotFoundHttpException(Yee::t('front',
                 'Token not found. It may be expired'));
         }
     }
@@ -307,19 +301,17 @@ class DefaultController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
-            if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_PASSWORD_RECOVERY_REQUEST,
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_PASSWORD_RECOVERY_REQUEST,
                 ['model' => $model])
             ) {
                 if ($model->sendEmail(false)) {
-                    if ($this->triggerModuleEvent(UserAuthEvent::AFTER_PASSWORD_RECOVERY_REQUEST,
+                    if ($this->triggerModuleEvent(AuthEvent::AFTER_PASSWORD_RECOVERY_REQUEST,
                         ['model' => $model])
                     ) {
                         return $this->renderIsAjax('passwordRecoverySuccess');
                     }
                 } else {
-                    Yii::$app->session->setFlash('error',
-                        UserManagementModule::t('front',
-                            "Unable to send message for email provided"));
+                    Yii::$app->session->setFlash('error', Yee::t('front', "Unable to send message for email provided"));
                 }
             }
         }
@@ -344,8 +336,7 @@ class DefaultController extends BaseController
         $user = User::findByConfirmationToken($token);
 
         if (!$user) {
-            throw new NotFoundHttpException(UserManagementModule::t('front',
-                'Token not found. It may be expired. Try reset password once more'));
+            throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired. Try reset password once more'));
         }
 
         $model = new ChangeOwnPasswordForm([
@@ -354,12 +345,12 @@ class DefaultController extends BaseController
         ]);
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
-            if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_PASSWORD_RECOVERY_COMPLETE,
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_PASSWORD_RECOVERY_COMPLETE,
                 ['model' => $model])
             ) {
                 $model->changePassword(false);
 
-                if ($this->triggerModuleEvent(UserAuthEvent::AFTER_PASSWORD_RECOVERY_COMPLETE,
+                if ($this->triggerModuleEvent(AuthEvent::AFTER_PASSWORD_RECOVERY_COMPLETE,
                     ['model' => $model])
                 ) {
                     return $this->renderIsAjax('changeOwnPasswordSuccess');
@@ -396,19 +387,17 @@ class DefaultController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
-            if ($this->triggerModuleEvent(UserAuthEvent::BEFORE_EMAIL_CONFIRMATION_REQUEST,
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_EMAIL_CONFIRMATION_REQUEST,
                 ['model' => $model])
             ) {
                 if ($model->sendEmail(false)) {
-                    if ($this->triggerModuleEvent(UserAuthEvent::AFTER_EMAIL_CONFIRMATION_REQUEST,
+                    if ($this->triggerModuleEvent(AuthEvent::AFTER_EMAIL_CONFIRMATION_REQUEST,
                         ['model' => $model])
                     ) {
                         return $this->refresh();
                     }
                 } else {
-                    Yii::$app->session->setFlash('error',
-                        UserManagementModule::t('front',
-                            "Unable to send message for email provided"));
+                    Yii::$app->session->setFlash('error', Yee::t('front', "Unable to send message for email provided"));
                 }
             }
         }
@@ -429,8 +418,7 @@ class DefaultController extends BaseController
         $user = User::findByConfirmationToken($token);
 
         if (!$user) {
-            throw new NotFoundHttpException(UserManagementModule::t('front',
-                'Token not found. It may be expired'));
+            throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired'));
         }
 
         $user->email_confirmed = 1;
@@ -450,9 +438,9 @@ class DefaultController extends BaseController
      */
     protected function triggerModuleEvent($eventName, $data = [])
     {
-        $event = new UserAuthEvent($data);
+        $event = new AuthEvent($data);
 
-        Yii::$app->getModule('user-management')->trigger($eventName, $event);
+        Yii::$app->getModule('yee')->trigger($eventName, $event);
 
         return $event->isValid;
     }

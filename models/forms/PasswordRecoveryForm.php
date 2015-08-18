@@ -2,8 +2,8 @@
 
 namespace yeesoft\auth\models\forms;
 
-use yeesoft\usermanagement\models\User;
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\models\User;
+use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -43,10 +43,8 @@ class PasswordRecoveryForm extends Model
      */
     public function validateEmailConfirmedAndUserActive()
     {
-        if (!Yii::$app->getModule('user-management')->checkAttempts()) {
-            $this->addError('email',
-                UserManagementModule::t('front', 'Too many attempts'));
-
+        if (!Yii::$app->getModule('yee')->checkAttempts()) {
+            $this->addError('email', Yee::t('front', 'Too many attempts'));
             return false;
         }
 
@@ -59,8 +57,7 @@ class PasswordRecoveryForm extends Model
         if ($user) {
             $this->user = $user;
         } else {
-            $this->addError('email',
-                UserManagementModule::t('front', 'E-mail is invalid'));
+            $this->addError('email', Yee::t('front', 'E-mail is invalid'));
         }
     }
 
@@ -71,7 +68,7 @@ class PasswordRecoveryForm extends Model
     {
         return [
             'email' => 'E-mail',
-            'captcha' => UserManagementModule::t('front', 'Captcha'),
+            'captcha' => Yee::t('front', 'Captcha'),
         ];
     }
 
@@ -89,12 +86,11 @@ class PasswordRecoveryForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->getModule('user-management')->mailerOptions['passwordRecoveryFormViewFile'],
+        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['passwordRecoveryFormViewFile'],
             ['user' => $this->user])
-            ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
+            ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)
-            ->setSubject(UserManagementModule::t('front',
-                    'Password reset for') . ' ' . Yii::$app->name)
+            ->setSubject(Yee::t('front', 'Password reset for') . ' ' . Yii::$app->name)
             ->send();
     }
 }

@@ -2,8 +2,8 @@
 
 namespace yeesoft\auth\models\forms;
 
-use yeesoft\usermanagement\models\User;
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\models\User;
+use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -57,9 +57,7 @@ class ConfirmEmailForm extends Model
             ]);
 
             if ($exists) {
-                $this->addError('email',
-                    UserManagementModule::t('front',
-                        'This E-mail already exists'));
+                $this->addError('email', Yee::t('front', 'This E-mail already exists'));
             }
         }
     }
@@ -84,7 +82,7 @@ class ConfirmEmailForm extends Model
     public function getTokenTimeLeft($inMinutes = false)
     {
         if ($this->user AND $this->user->confirmation_token) {
-            $expire = Yii::$app->getModule('user-management')->confirmationTokenExpire;
+            $expire = Yii::$app->getModule('yee')->confirmationTokenExpire;
 
             $parts = explode('_', $this->user->confirmation_token);
             $timestamp = (int)end($parts);
@@ -116,12 +114,11 @@ class ConfirmEmailForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->getModule('user-management')->mailerOptions['confirmEmailFormViewFile'],
+        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['confirmEmailFormViewFile'],
             ['user' => $this->user])
-            ->setFrom(Yii::$app->getModule('user-management')->mailerOptions['from'])
+            ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)
-            ->setSubject(UserManagementModule::t('front',
-                    'E-mail confirmation for') . ' ' . Yii::$app->name)
+            ->setSubject(Yee::t('front', 'E-mail confirmation for') . ' ' . Yii::$app->name)
             ->send();
     }
 }

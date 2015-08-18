@@ -1,6 +1,6 @@
 <?php
 
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\captcha\Captcha;
 use yii\helpers\Html;
@@ -10,7 +10,7 @@ use yii\helpers\Html;
  * @var yeesoft\auth\models\forms\PasswordRecoveryForm $model
  */
 
-$this->title = UserManagementModule::t('front', 'Password recovery');
+$this->title = Yee::t('front', 'Password recovery');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="form-group">
         <div class="col-sm-offset-3 col-sm-9">
             <?= Html::submitButton(
-                '<span class="glyphicon glyphicon-ok"></span> ' . UserManagementModule::t('front', 'Recover'),
+                '<span class="glyphicon glyphicon-ok"></span> ' . Yee::t('front', 'Recover'),
                 ['class' => 'btn btn-primary']
             ) ?>
         </div>

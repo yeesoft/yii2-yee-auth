@@ -2,9 +2,9 @@
 
 namespace yeesoft\auth\models\forms;
 
-use yeesoft\helpers\LittleBigHelper;
-use yeesoft\usermanagement\models\User;
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\helpers\YeeHelper;
+use yeesoft\models\User;
+use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -31,9 +31,9 @@ class LoginForm extends Model
     public function attributeLabels()
     {
         return [
-            'username' => UserManagementModule::t('front', 'Login'),
-            'password' => UserManagementModule::t('front', 'Password'),
-            'rememberMe' => UserManagementModule::t('front', 'Remember me'),
+            'username' => Yee::t('front', 'Login'),
+            'password' => Yee::t('front', 'Password'),
+            'rememberMe' => Yee::t('front', 'Remember me'),
         ];
     }
 
@@ -43,19 +43,15 @@ class LoginForm extends Model
      */
     public function validatePassword()
     {
-        if (!Yii::$app->getModule('user-management')->checkAttempts()) {
-            $this->addError('password',
-                UserManagementModule::t('front', 'Too many attempts'));
-
+        if (!Yii::$app->getModule('yee')->checkAttempts()) {
+            $this->addError('password', Yee::t('front', 'Too many attempts'));
             return false;
         }
 
         if (!$this->hasErrors()) {
             $user = $this->getUser();
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError('password',
-                    UserManagementModule::t('front',
-                        'Incorrect username or password.'));
+                $this->addError('password', Yee::t('front', 'Incorrect username or password.'));
             }
         }
     }
@@ -69,13 +65,10 @@ class LoginForm extends Model
 
         if ($user AND $user->bind_to_ip) {
             $ips = explode(',', $user->bind_to_ip);
-
             $ips = array_map('trim', $ips);
 
-            if (!in_array(LittleBigHelper::getRealIp(), $ips)) {
-                $this->addError('password',
-                    UserManagementModule::t('front',
-                        "You could not login from this IP"));
+            if (!in_array(YeeHelper::getRealIp(), $ips)) {
+                $this->addError('password', Yee::t('front', "You could not login from this IP"));
             }
         }
     }

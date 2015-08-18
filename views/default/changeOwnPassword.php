@@ -1,6 +1,6 @@
 <?php
 
-use yeesoft\usermanagement\UserManagementModule;
+use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
@@ -9,7 +9,7 @@ use yii\helpers\Html;
  * @var yeesoft\auth\models\forms\ChangeOwnPasswordForm $model
  */
 
-$this->title = UserManagementModule::t('back', 'Change own password');
+$this->title = Yee::t('back', 'Change own password');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="change-own-password">
@@ -46,7 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-9">
                         <?= Html::submitButton(
-                            '<span class="glyphicon glyphicon-ok"></span> ' . UserManagementModule::t('back', 'Save'),
+                            '<span class="glyphicon glyphicon-ok"></span> ' . Yee::t('back', 'Save'),
                             ['class' => 'btn btn-primary']
                         ) ?>
                     </div>

@@ -2,6 +2,7 @@
 
 namespace yeesoft\auth\widgets;
 
+use yeesoft\auth\assets\AuthAsset;
 use Yii;
 use yii\authclient\ClientInterface;
 use yii\authclient\widgets\AuthChoice as BaseAuthChoice;
@@ -22,7 +23,7 @@ class AuthChoice extends BaseAuthChoice
     public function init()
     {
         $view = Yii::$app->getView();
-        YeeAuthAsset::register($view);
+        AuthAsset::register($view);
         parent::init();
     }
 

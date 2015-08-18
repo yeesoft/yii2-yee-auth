@@ -2,8 +2,7 @@
 
 namespace yeesoft\auth\models;
 
-use yeesoft\usermanagement\models\User;
-use Yii;
+use yeesoft\models\User;
 
 /**
  * This is the model class for table "auth".
