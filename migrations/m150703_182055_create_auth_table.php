@@ -3,7 +3,7 @@
 use yii\db\Migration;
 use yii\db\Schema;
 
-class m150703_182050_create_auth_table extends Migration
+class m150703_182055_create_auth_table extends Migration
 {
 
     public function safeUp()
