@@ -8,7 +8,6 @@ use yeesoft\Yee;
  */
 
 $this->title = Yee::t('front', 'E-mail confirmed');
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="change-own-password-success">
 

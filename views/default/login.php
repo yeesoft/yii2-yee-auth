@@ -31,46 +31,29 @@ use yii\helpers\Html;
                         ])
                         ?>
 
-                        <?=
-                        $form->field($model, 'username')
-                            ->textInput(['placeholder' => $model->getAttributeLabel('username'),
-                                'autocomplete' => 'off'])
-                        ?>
+                        <?= $form->field($model, 'username')->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
 
-                        <?=
-                        $form->field($model, 'password')
-                            ->passwordInput(['placeholder' => $model->getAttributeLabel('password'),
-                                'autocomplete' => 'off'])
-                        ?>
+                        <?= $form->field($model, 'password')->passwordInput(['placeholder' => $model->getAttributeLabel('password')]) ?>
 
                         <?= $form->field($model, 'rememberMe')->checkbox(['value' => true]) ?>
 
-                        <?=
-                        Html::submitButton(Yee::t('front', 'Login'), ['class' => 'btn btn-lg btn-primary btn-block'])
-                        ?>
-
+                        <?= Html::submitButton(Yee::t('front', 'Login'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                         <div class="row registration-block">
                             <div class="col-sm-12">
-                                <?=
-                                AuthChoice::widget([
+                                <?= AuthChoice::widget([
                                     'baseAuthUrl' => ['default/oauth'],
                                     'popupMode' => false,
-                                ])
-                                ?>
+                                ]) ?>
                             </div>
                         </div>
 
                         <div class="row registration-block">
                             <div class="col-sm-6">
-                                <?=
-                                Html::a(Yee::t('front', "Registration"), ['default/registration'])
-                                ?>
+                                <?= Html::a(Yee::t('front', "Registration"), ['default/signup']) ?>
                             </div>
                             <div class="col-sm-6 text-right">
-                                <?=
-                                Html::a(Yee::t('front', "Forgot password ?"), ['default/password-recovery'])
-                                ?>
+                                <?= Html::a(Yee::t('front', "Forgot password ?"), ['default/reset-password']) ?>
                             </div>
                         </div>
 

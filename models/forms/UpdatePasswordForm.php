@@ -7,7 +7,7 @@ use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
-class ChangeOwnPasswordForm extends Model
+class UpdatePasswordForm extends Model
 {
     /**
      * @var User
@@ -63,9 +63,7 @@ class ChangeOwnPasswordForm extends Model
             return false;
         }
 
-        if (!Yii::$app->security->validatePassword($this->current_password,
-            $this->user->password_hash)
-        ) {
+        if (!Yii::$app->security->validatePassword($this->current_password, $this->user->password_hash)) {
             $this->addError('current_password', Yee::t('back', "Wrong password"));
         }
     }
@@ -75,7 +73,7 @@ class ChangeOwnPasswordForm extends Model
      *
      * @return bool
      */
-    public function changePassword($performValidation = true)
+    public function updatePassword($performValidation = true)
     {
         if ($performValidation AND !$this->validate()) {
             return false;

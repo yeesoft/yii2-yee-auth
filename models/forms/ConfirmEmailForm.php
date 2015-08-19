@@ -114,7 +114,7 @@ class ConfirmEmailForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['confirmEmailFormViewFile'],
+        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['confirm-email'],
             ['user' => $this->user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)

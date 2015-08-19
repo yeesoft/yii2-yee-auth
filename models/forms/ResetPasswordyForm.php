@@ -7,7 +7,7 @@ use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
-class PasswordRecoveryForm extends Model
+class ResetPasswordyForm extends Model
 {
     /**
      * @var User
@@ -86,8 +86,8 @@ class PasswordRecoveryForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['passwordRecoveryFormViewFile'],
-            ['user' => $this->user])
+        return Yii::$app->mailer
+            ->compose(Yii::$app->getModule('yee')->mailerOptions['password-reset-mail'], ['user' => $this->user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)
             ->setSubject(Yee::t('front', 'Password reset for') . ' ' . Yii::$app->name)

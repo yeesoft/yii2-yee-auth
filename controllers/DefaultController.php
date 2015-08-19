@@ -3,16 +3,17 @@
 namespace yeesoft\auth\controllers;
 
 use yeesoft\auth\models\Auth;
-use yeesoft\auth\models\forms\ChangeOwnPasswordForm;
 use yeesoft\auth\models\forms\ConfirmEmailForm;
 use yeesoft\auth\models\forms\LoginForm;
-use yeesoft\auth\models\forms\PasswordRecoveryForm;
-use yeesoft\auth\models\forms\RegistrationForm;
+use yeesoft\auth\models\forms\ResetPasswordyForm;
+use yeesoft\auth\models\forms\SignupForm;
+use yeesoft\auth\models\forms\UpdatePasswordForm;
 use yeesoft\components\AuthEvent;
 use yeesoft\controllers\BaseController;
 use yeesoft\models\User;
 use yeesoft\Yee;
 use Yii;
+use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -24,8 +25,9 @@ class DefaultController extends BaseController
     /**
      * @var array
      */
-    public $freeAccessActions = ['login', 'logout', 'confirm-registration-email',
-        'registration', 'password-recovery', 'captcha', 'oauth'];
+    public $freeAccessActions = ['login', 'logout', 'captcha', 'oauth', 'signup',
+        'confirm-email', 'confirm-registration-email', 'confirm-email-receive',
+        'reset-password', 'reset-password-request', 'update-password'];
 
     /**
      * @return array
@@ -39,6 +41,18 @@ class DefaultController extends BaseController
                 'successCallback' => [$this, 'onAuthSuccess'],
             ],
         ];
+    }
+
+    public function behaviors()
+    {
+        return ArrayHelper::merge(parent::behaviors(), [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'logout' => ['post'],
+                ],
+            ],
+        ]);
     }
 
     public function onAuthSuccess($client)
@@ -76,17 +90,14 @@ class DefaultController extends BaseController
                 $email = ($emailPath) ? ArrayHelper::getValue($attributes, $emailPath) : '';
 
                 if ($emailPath && $email && User::find()->where(['email' => $email])->exists()) {
-                    Yii::$app->getSession()->setFlash('error',
-                        [
-                            Yii::t('app', "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.",
-                                ['client' => $client->getTitle()]),
-                        ]);
+                    Yii::$app->getSession()->setFlash('error', [
+                        Yii::t('app', "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.", ['client' => $client->getTitle()]),
+                    ]);
                     Yii::$app->getResponse()->redirect(['auth/default/login']);
                 } else {
                     $password = Yii::$app->security->generateRandomString(6);
                     $user = new User([
-                        'username' => ArrayHelper::getValue($attributes,
-                            $usernamePath),
+                        'username' => ArrayHelper::getValue($attributes, $usernamePath),
                         'email' => $email,
                         'password' => $password,
                     ]);
@@ -158,95 +169,46 @@ class DefaultController extends BaseController
     }
 
     /**
-     * Change your own password
-     *
-     * @throws \yii\web\ForbiddenHttpException
-     * @return string|\yii\web\Response
-     */
-    public function actionChangeOwnPassword()
-    {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $user = User::getCurrentUser();
-
-        if ($user->status != User::STATUS_ACTIVE) {
-            throw new ForbiddenHttpException();
-        }
-
-        $model = new ChangeOwnPasswordForm(['user' => $user]);
-
-        if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-
-        if ($model->load(Yii::$app->request->post()) AND $model->changePassword()) {
-            return $this->renderIsAjax('changeOwnPasswordSuccess');
-        }
-
-        return $this->renderIsAjax('changeOwnPassword', compact('model'));
-    }
-
-    /**
-     * Registration logic
+     * Signup page
      *
      * @return string
      */
-    public function actionRegistration()
+    public function actionSignup()
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
-        $model = new RegistrationForm;
-
+        $model = new SignupForm;
 
         if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
-
             Yii::$app->response->format = Response::FORMAT_JSON;
-
-            // Ajax validation breaks captcha. See https://github.com/yiisoft/yii2/issues/6115
-            // Thanks to TomskDiver
-            $validateAttributes = $model->attributes;
-            unset($validateAttributes['captcha']);
-
-            return ActiveForm::validate($model, $validateAttributes);
+            return $model->validate();
         }
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
             // Trigger event "before registration" and checks if it's valid
-            if ($this->triggerModuleEvent(AuthEvent::BEFORE_REGISTRATION,
-                ['model' => $model])
-            ) {
-                $user = $model->registerUser(false);
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_REGISTRATION, ['model' => $model])) {
+
+                $user = $model->signup(false);
 
                 // Trigger event "after registration" and checks if it's valid
-                if ($this->triggerModuleEvent(AuthEvent::AFTER_REGISTRATION,
-                    ['model' => $model, 'user' => $user])
-                ) {
-                    if ($user) {
-                        if (Yii::$app->getModule('yee')->useEmailAsLogin AND Yii::$app->getModule('yee')->emailConfirmationRequired) {
-                            return $this->renderIsAjax('registrationWaitForEmailConfirmation',
-                                compact('user'));
-                        } else {
-                            $roles = (array)Yii::$app->getModule('yee')->rolesAfterRegistration;
+                if ($user && $this->triggerModuleEvent(AuthEvent::AFTER_REGISTRATION, ['model' => $model, 'user' => $user])) {
 
-                            foreach ($roles as $role) {
-                                User::assignRole($user->id, $role);
-                            }
+                    if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
+                        return $this->renderIsAjax('signup-confirmation', compact('user'));
+                    } else {
+                        $user->assignRoles(Yii::$app->getModule('yee')->rolesAfterRegistration);
 
-                            Yii::$app->user->login($user);
+                        Yii::$app->user->login($user);
 
-                            return $this->redirect(Yii::$app->user->returnUrl);
-                        }
+                        return $this->redirect(Yii::$app->user->returnUrl);
                     }
                 }
             }
         }
 
-        return $this->renderIsAjax('registration', compact('model'));
+        return $this->renderIsAjax('signup', compact('model'));
     }
 
     /**
@@ -259,56 +221,75 @@ class DefaultController extends BaseController
      */
     public function actionConfirmRegistrationEmail($token)
     {
-        if (Yii::$app->getModule('yee')->useEmailAsLogin AND Yii::$app->getModule('yee')->emailConfirmationRequired) {
-            $registrationFormClass = Yii::$app->getModule('yee')->registrationFormClass;
-            $model = new $registrationFormClass;
+        if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
+
+            $model = new SignupForm;
 
             $user = $model->checkConfirmationToken($token);
 
             if ($user) {
-                return $this->renderIsAjax('confirmEmailSuccess',
-                    compact('user'));
+                return $this->renderIsAjax('confirm-email-success', compact('user'));
             }
 
-            throw new NotFoundHttpException(Yee::t('front',
-                'Token not found. It may be expired'));
+            throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired'));
         }
     }
 
     /**
-     * Form to recover password
+     * Update your own password
+     *
+     * @throws \yii\web\ForbiddenHttpException
+     * @return string|\yii\web\Response
+     */
+    public function actionUpdatePassword()
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $user = User::getCurrentUser();
+
+        if ($user->status != User::STATUS_ACTIVE) {
+            throw new ForbiddenHttpException();
+        }
+
+        $model = new UpdatePasswordForm(compact('user'));
+
+        if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        if ($model->load(Yii::$app->request->post()) AND $model->updatePassword()) {
+            return $this->renderIsAjax('update-password-success');
+        }
+
+        return $this->renderIsAjax('update-password', compact('model'));
+    }
+
+    /**
+     * Reset password
      *
      * @return string|\yii\web\Response
      */
-    public function actionPasswordRecovery()
+    public function actionResetPassword()
     {
-
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
-        $model = new PasswordRecoveryForm();
+        $model = new ResetPasswordyForm();
 
         if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-
-            // Ajax validation breaks captcha. See https://github.com/yiisoft/yii2/issues/6115
-            // Thanks to TomskDiver
-            $validateAttributes = $model->attributes;
-            unset($validateAttributes['captcha']);
-
-            return ActiveForm::validate($model, $validateAttributes);
+            return $model->validate();
         }
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
-            if ($this->triggerModuleEvent(AuthEvent::BEFORE_PASSWORD_RECOVERY_REQUEST,
-                ['model' => $model])
-            ) {
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_PASSWORD_RECOVERY_REQUEST, ['model' => $model])) {
                 if ($model->sendEmail(false)) {
-                    if ($this->triggerModuleEvent(AuthEvent::AFTER_PASSWORD_RECOVERY_REQUEST,
-                        ['model' => $model])
-                    ) {
-                        return $this->renderIsAjax('passwordRecoverySuccess');
+                    if ($this->triggerModuleEvent(AuthEvent::AFTER_PASSWORD_RECOVERY_REQUEST, ['model' => $model])) {
+                        return $this->renderIsAjax('reset-password-success');
                     }
                 } else {
                     Yii::$app->session->setFlash('error', Yee::t('front', "Unable to send message for email provided"));
@@ -316,18 +297,18 @@ class DefaultController extends BaseController
             }
         }
 
-        return $this->renderIsAjax('passwordRecovery', compact('model'));
+        return $this->renderIsAjax('reset-password', compact('model'));
     }
 
     /**
-     * Receive token, find user by it and show form to change password
+     * Receive token to reset password
      *
      * @param string $token
      *
      * @throws \yii\web\NotFoundHttpException
      * @return string|\yii\web\Response
      */
-    public function actionPasswordRecoveryReceive($token)
+    public function actionResetPasswordRequest($token)
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
@@ -339,26 +320,22 @@ class DefaultController extends BaseController
             throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired. Try reset password once more'));
         }
 
-        $model = new ChangeOwnPasswordForm([
+        $model = new UpdatePasswordForm([
             'scenario' => 'restoreViaEmail',
             'user' => $user,
         ]);
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
-            if ($this->triggerModuleEvent(AuthEvent::BEFORE_PASSWORD_RECOVERY_COMPLETE,
-                ['model' => $model])
-            ) {
-                $model->changePassword(false);
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_PASSWORD_RECOVERY_COMPLETE, ['model' => $model])) {
+                $model->updatePassword(false);
 
-                if ($this->triggerModuleEvent(AuthEvent::AFTER_PASSWORD_RECOVERY_COMPLETE,
-                    ['model' => $model])
-                ) {
-                    return $this->renderIsAjax('changeOwnPasswordSuccess');
+                if ($this->triggerModuleEvent(AuthEvent::AFTER_PASSWORD_RECOVERY_COMPLETE, ['model' => $model])) {
+                    return $this->renderIsAjax('update-password-success');
                 }
             }
         }
 
-        return $this->renderIsAjax('changeOwnPassword', compact('model'));
+        return $this->renderIsAjax('update-password', compact('model'));
     }
 
     /**
@@ -387,13 +364,9 @@ class DefaultController extends BaseController
         }
 
         if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
-            if ($this->triggerModuleEvent(AuthEvent::BEFORE_EMAIL_CONFIRMATION_REQUEST,
-                ['model' => $model])
-            ) {
+            if ($this->triggerModuleEvent(AuthEvent::BEFORE_EMAIL_CONFIRMATION_REQUEST, ['model' => $model])) {
                 if ($model->sendEmail(false)) {
-                    if ($this->triggerModuleEvent(AuthEvent::AFTER_EMAIL_CONFIRMATION_REQUEST,
-                        ['model' => $model])
-                    ) {
+                    if ($this->triggerModuleEvent(AuthEvent::AFTER_EMAIL_CONFIRMATION_REQUEST, ['model' => $model])) {
                         return $this->refresh();
                     }
                 } else {
@@ -402,7 +375,7 @@ class DefaultController extends BaseController
             }
         }
 
-        return $this->renderIsAjax('confirmEmail', compact('model'));
+        return $this->renderIsAjax('confirm-email', compact('model'));
     }
 
     /**
@@ -425,7 +398,7 @@ class DefaultController extends BaseController
         $user->removeConfirmationToken();
         $user->save(false);
 
-        return $this->renderIsAjax('confirmEmailSuccess', compact('user'));
+        return $this->renderIsAjax('confirm-email-success', compact('user'));
     }
 
     /**

@@ -7,7 +7,6 @@ use yeesoft\Yee;
  */
 
 $this->title = Yee::t('front', 'Password recovery');
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="password-recovery-success">
 
