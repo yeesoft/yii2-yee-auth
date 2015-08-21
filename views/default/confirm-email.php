@@ -26,7 +26,9 @@ $this->title = Yee::t('front', 'Confirm E-mail');
                 </div>
                 <div class="panel-body">
 
-                    <?php if ($model->user->confirmation_token === null): ?>
+                    <?php
+                    if ($model->user->confirmation_token === null):
+                        ?>
 
                         <?php
                         $form = ActiveForm::begin([
@@ -48,10 +50,12 @@ $this->title = Yee::t('front', 'Confirm E-mail');
                     <?php else: ?>
 
                         <div class="alert alert-info text-center">
-                            <?= Yee::t('back', 'E-mail with activation link has been sent to <b>{email}</b>. This link will expire in {minutes} min.', [
+                            <?=
+                            Yee::t('back', 'E-mail with activation link has been sent to <b>{email}</b>. This link will expire in {minutes} min.', [
                                 'email' => $model->user->email,
                                 'minutes' => $model->getTokenTimeLeft(true),
-                            ]) ?>
+                            ])
+                            ?>
                         </div>
                     <?php endif; ?>
 

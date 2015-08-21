@@ -236,7 +236,7 @@ class DefaultController extends BaseController
     }
 
     /**
-     * Update your own password
+     * Change your own password
      *
      * @throws \yii\web\ForbiddenHttpException
      * @return string|\yii\web\Response
@@ -268,7 +268,7 @@ class DefaultController extends BaseController
     }
 
     /**
-     * Reset password
+     * Action to reset password
      *
      * @return string|\yii\web\Response
      */
@@ -301,7 +301,7 @@ class DefaultController extends BaseController
     }
 
     /**
-     * Receive token to reset password
+     * Receive token, find user by it and show form to change password
      *
      * @param string $token
      *

@@ -9,7 +9,7 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var yeesoft\auth\models\forms\RegistrationForm $model
  */
-$this->title = Yee::t('front', 'Sign Up');
+$this->title = Yee::t('front', 'Signup');
 ?>
 
 <div id="signup-wrapper">
@@ -37,10 +37,12 @@ $this->title = Yee::t('front', 'Sign Up');
 
                     <?= $form->field($model, 'repeat_password')->passwordInput(['maxlength' => 255]) ?>
 
-                    <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
+                    <?=
+                    $form->field($model, 'captcha')->widget(Captcha::className(), [
                         'template' => '<div class="row"><div class="col-sm-3">{image}</div><div class="col-sm-3">{input}</div></div>',
                         'captchaAction' => [\yii\helpers\Url::to('/auth/captcha')]
-                    ]) ?>
+                    ])
+                    ?>
 
                     <?= Html::submitButton(Yee::t('front', 'Signup'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 

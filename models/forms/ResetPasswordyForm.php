@@ -86,8 +86,8 @@ class ResetPasswordyForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer
-            ->compose(Yii::$app->getModule('yee')->mailerOptions['password-reset-mail'], ['user' => $this->user])
+        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['password-reset-mail'],
+            ['user' => $this->user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)
             ->setSubject(Yee::t('front', 'Password reset for') . ' ' . Yii::$app->name)

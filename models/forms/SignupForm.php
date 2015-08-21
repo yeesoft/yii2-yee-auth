@@ -88,6 +88,7 @@ class SignupForm extends Model
         if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
             $user->status = User::STATUS_INACTIVE;
             $user->generateConfirmationToken();
+            // $user->save(false);
 
             if (!$this->sendConfirmationEmail($user)) {
                 $this->addError('username', Yee::t('front', 'Could not send confirmation email'));
@@ -110,8 +111,7 @@ class SignupForm extends Model
      */
     protected function sendConfirmationEmail($user)
     {
-        return Yii::$app->mailer
-            ->compose(Yii::$app->getModule('yee')->mailerOptions['signup-confirmation'], ['user' => $user])
+        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['signup-confirmation'], ['user' => $user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($user->email)
             ->setSubject(Yee::t('front', 'E-mail confirmation for') . ' ' . Yii::$app->name)

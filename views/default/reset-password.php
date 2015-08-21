@@ -37,10 +37,12 @@ $this->title = Yee::t('front', 'Reset Password');
 
                         <?= $form->field($model, 'email')->textInput(['maxlength' => 255]) ?>
 
-                        <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
+                        <?=
+                        $form->field($model, 'captcha')->widget(Captcha::className(), [
                             'template' => '<div class="row"><div class="col-sm-2">{image}</div><div class="col-sm-3">{input}</div></div>',
                             'captchaAction' => ['/auth/captcha']
-                        ]) ?>
+                        ])
+                        ?>
 
                         <?= Html::submitButton(Yee::t('front', 'Reset'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 

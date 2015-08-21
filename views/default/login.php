@@ -31,9 +31,9 @@ use yii\helpers\Html;
                         ])
                         ?>
 
-                        <?= $form->field($model, 'username')->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
+                        <?= $form->field($model, 'username')->textInput(['placeholder' => $model->getAttributeLabel('username'), 'autocomplete' => 'off']) ?>
 
-                        <?= $form->field($model, 'password')->passwordInput(['placeholder' => $model->getAttributeLabel('password')]) ?>
+                        <?= $form->field($model, 'password')->passwordInput(['placeholder' => $model->getAttributeLabel('password'), 'autocomplete' => 'off']) ?>
 
                         <?= $form->field($model, 'rememberMe')->checkbox(['value' => true]) ?>
 
@@ -41,10 +41,12 @@ use yii\helpers\Html;
 
                         <div class="row registration-block">
                             <div class="col-sm-12">
-                                <?= AuthChoice::widget([
+                                <?=
+                                AuthChoice::widget([
                                     'baseAuthUrl' => ['default/oauth'],
                                     'popupMode' => false,
-                                ]) ?>
+                                ])
+                                ?>
                             </div>
                         </div>
 
