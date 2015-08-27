@@ -25,6 +25,13 @@ or add
 
 to the require section of your `composer.json` file.
 
+
+Run migrations
+
+```php
+yii migrate --migrationPath=@vendor/yeesoft/yii2-yee-auth/migrations/
+```
+
 Configuration
 ------
 - In your frontend config file
@@ -57,12 +64,6 @@ Configuration
         ],
     ],
 ],
-```
-
-- Run migrations
-
-```php
-yii migrate --migrationPath=@vendor/yeesoft/yii2-yee-auth/migrations/
 ```
 
 Screenshots
