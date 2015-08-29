@@ -130,7 +130,6 @@ class SignupForm extends Model
         $user = User::findInactiveByConfirmationToken($token);
 
         if ($user) {
-            $user->username = $user->email;
             $user->status = User::STATUS_ACTIVE;
             $user->email_confirmed = 1;
             $user->removeConfirmationToken();
