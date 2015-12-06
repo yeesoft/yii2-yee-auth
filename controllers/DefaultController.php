@@ -11,7 +11,6 @@ use yeesoft\auth\models\forms\UpdatePasswordForm;
 use yeesoft\components\AuthEvent;
 use yeesoft\controllers\BaseController;
 use yeesoft\models\User;
-use yeesoft\Yee;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
@@ -231,7 +230,7 @@ class DefaultController extends BaseController
                 return $this->renderIsAjax('confirm-email-success', compact('user'));
             }
 
-            throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired'));
+            throw new NotFoundHttpException(Yii::t('yee/auth', 'Token not found. It may be expired'));
         }
     }
 
@@ -292,7 +291,7 @@ class DefaultController extends BaseController
                         return $this->renderIsAjax('reset-password-success');
                     }
                 } else {
-                    Yii::$app->session->setFlash('error', Yee::t('front', "Unable to send message for email provided"));
+                    Yii::$app->session->setFlash('error', Yii::t('yee/auth', "Unable to send message for email provided"));
                 }
             }
         }
@@ -317,7 +316,7 @@ class DefaultController extends BaseController
         $user = User::findByConfirmationToken($token);
 
         if (!$user) {
-            throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired. Try reset password once more'));
+            throw new NotFoundHttpException(Yii::t('yee/auth', 'Token not found. It may be expired. Try reset password once more'));
         }
 
         $model = new UpdatePasswordForm([
@@ -370,7 +369,7 @@ class DefaultController extends BaseController
                         return $this->refresh();
                     }
                 } else {
-                    Yii::$app->session->setFlash('error', Yee::t('front', "Unable to send message for email provided"));
+                    Yii::$app->session->setFlash('error', Yii::t('yee/auth', "Unable to send message for email provided"));
                 }
             }
         }
@@ -391,7 +390,7 @@ class DefaultController extends BaseController
         $user = User::findByConfirmationToken($token);
 
         if (!$user) {
-            throw new NotFoundHttpException(Yee::t('front', 'Token not found. It may be expired'));
+            throw new NotFoundHttpException(Yii::t('yee/auth', 'Token not found. It may be expired'));
         }
 
         $user->email_confirmed = 1;

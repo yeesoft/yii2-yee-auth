@@ -5,7 +5,6 @@
  * @var $model yeesoft\auth\models\forms\LoginForm
  */
 use yeesoft\auth\widgets\AuthChoice;
-use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
@@ -16,7 +15,7 @@ use yii\helpers\Html;
             <div class="col-md-6 col-md-offset-2">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title"><?= Yee::t('front', 'Authorization') ?></h3>
+                        <h3 class="panel-title"><?= Yii::t('yee/auth', 'Authorization') ?></h3>
                     </div>
                     <div class="panel-body">
 
@@ -37,7 +36,7 @@ use yii\helpers\Html;
 
                         <?= $form->field($model, 'rememberMe')->checkbox(['value' => true]) ?>
 
-                        <?= Html::submitButton(Yee::t('front', 'Login'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
+                        <?= Html::submitButton(Yii::t('yee/auth', 'Login'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                         <div class="row registration-block">
                             <div class="col-sm-12">
@@ -52,10 +51,10 @@ use yii\helpers\Html;
 
                         <div class="row registration-block">
                             <div class="col-sm-6">
-                                <?= Html::a(Yee::t('front', "Registration"), ['default/signup']) ?>
+                                <?= Html::a(Yii::t('yee/auth', "Registration"), ['default/signup']) ?>
                             </div>
                             <div class="col-sm-6 text-right">
-                                <?= Html::a(Yee::t('front', "Forgot password ?"), ['default/reset-password']) ?>
+                                <?= Html::a(Yii::t('yee/auth', "Forgot password ?"), ['default/reset-password']) ?>
                             </div>
                         </div>
 

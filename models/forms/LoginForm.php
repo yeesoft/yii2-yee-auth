@@ -4,7 +4,6 @@ namespace yeesoft\auth\models\forms;
 
 use yeesoft\helpers\YeeHelper;
 use yeesoft\models\User;
-use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -31,9 +30,9 @@ class LoginForm extends Model
     public function attributeLabels()
     {
         return [
-            'username' => Yee::t('front', 'Login'),
-            'password' => Yee::t('front', 'Password'),
-            'rememberMe' => Yee::t('front', 'Remember me'),
+            'username' => Yii::t('yee/auth', 'Login'),
+            'password' => Yii::t('yee/auth', 'Password'),
+            'rememberMe' => Yii::t('yee/auth', 'Remember me'),
         ];
     }
 
@@ -44,14 +43,14 @@ class LoginForm extends Model
     public function validatePassword()
     {
         if (!Yii::$app->getModule('yee')->checkAttempts()) {
-            $this->addError('password', Yee::t('front', 'Too many attempts'));
+            $this->addError('password', Yii::t('yee/auth', 'Too many attempts'));
             return false;
         }
 
         if (!$this->hasErrors()) {
             $user = $this->getUser();
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError('password', Yee::t('front', 'Incorrect username or password.'));
+                $this->addError('password', Yii::t('yee/auth', 'Incorrect username or password'));
             }
         }
     }
@@ -68,7 +67,7 @@ class LoginForm extends Model
             $ips = array_map('trim', $ips);
 
             if (!in_array(YeeHelper::getRealIp(), $ips)) {
-                $this->addError('password', Yee::t('front', "You could not login from this IP"));
+                $this->addError('password', Yii::t('yee/auth', "You could not login from this IP"));
             }
         }
     }

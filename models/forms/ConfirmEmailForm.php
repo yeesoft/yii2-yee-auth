@@ -3,7 +3,6 @@
 namespace yeesoft\auth\models\forms;
 
 use yeesoft\models\User;
-use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -57,7 +56,7 @@ class ConfirmEmailForm extends Model
             ]);
 
             if ($exists) {
-                $this->addError('email', Yee::t('front', 'This E-mail already exists'));
+                $this->addError('email', Yii::t('yee/auth', 'This E-mail already exists'));
             }
         }
     }
@@ -118,7 +117,7 @@ class ConfirmEmailForm extends Model
             ['user' => $this->user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)
-            ->setSubject(Yee::t('front', 'E-mail confirmation for') . ' ' . Yii::$app->name)
+            ->setSubject(Yii::t('yee/auth', 'E-mail confirmation for') . ' ' . Yii::$app->name)
             ->send();
     }
 }

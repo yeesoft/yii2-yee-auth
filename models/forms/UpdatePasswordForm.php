@@ -3,7 +3,6 @@
 namespace yeesoft\auth\models\forms;
 
 use yeesoft\models\User;
-use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -47,9 +46,9 @@ class UpdatePasswordForm extends Model
     public function attributeLabels()
     {
         return [
-            'current_password' => Yee::t('back', 'Current password'),
-            'password' => Yee::t('front', 'Password'),
-            'repeat_password' => Yee::t('front', 'Repeat password'),
+            'current_password' => Yii::t('yee/auth', 'Current password'),
+            'password' => Yii::t('yee/auth', 'Password'),
+            'repeat_password' => Yii::t('yee/auth', 'Repeat password'),
         ];
     }
 
@@ -59,12 +58,12 @@ class UpdatePasswordForm extends Model
     public function validateCurrentPassword()
     {
         if (!Yii::$app->getModule('yee')->checkAttempts()) {
-            $this->addError('current_password', Yee::t('back', 'Too many attempts'));
+            $this->addError('current_password', Yii::t('yee/auth', 'Too many attempts'));
             return false;
         }
 
         if (!Yii::$app->security->validatePassword($this->current_password, $this->user->password_hash)) {
-            $this->addError('current_password', Yee::t('back', "Wrong password"));
+            $this->addError('current_password', Yii::t('yee/auth', "Wrong password"));
         }
     }
 

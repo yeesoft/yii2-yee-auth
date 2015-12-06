@@ -1,6 +1,5 @@
 <?php
 
-use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\captcha\Captcha;
 use yii\helpers\Html;
@@ -9,7 +8,7 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var yeesoft\auth\models\forms\RegistrationForm $model
  */
-$this->title = Yee::t('front', 'Signup');
+$this->title = Yii::t('yee/auth', 'Signup');
 ?>
 
 <div id="signup-wrapper">
@@ -21,13 +20,11 @@ $this->title = Yee::t('front', 'Signup');
                 </div>
                 <div class="panel-body">
 
-                    <?php
-                    $form = ActiveForm::begin([
+                    <?php $form = ActiveForm::begin([
                         'id' => 'signup',
                         'validateOnBlur' => false,
                         'options' => ['autocomplete' => 'off'],
-                    ]);
-                    ?>
+                    ]); ?>
 
                     <?= $form->field($model, 'username')->textInput(['maxlength' => 50]) ?>
 
@@ -37,21 +34,19 @@ $this->title = Yee::t('front', 'Signup');
 
                     <?= $form->field($model, 'repeat_password')->passwordInput(['maxlength' => 255]) ?>
 
-                    <?=
-                    $form->field($model, 'captcha')->widget(Captcha::className(), [
+                    <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
                         'template' => '<div class="row"><div class="col-sm-3">{image}</div><div class="col-sm-3">{input}</div></div>',
-                        'captchaAction' => [\yii\helpers\Url::to('/auth/captcha')]
-                    ])
-                    ?>
+                        'captchaAction' => [\yii\helpers\Url::to(['/auth/captcha'])]
+                    ]) ?>
 
-                    <?= Html::submitButton(Yee::t('front', 'Signup'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
+                    <?= Html::submitButton(Yii::t('yee/auth', 'Signup'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                     <div class="row registration-block">
                         <div class="col-sm-6">
-                            <?= Html::a(Yee::t('front', "Login"), ['default/login']) ?>
+                            <?= Html::a(Yii::t('yee/auth', "Login"), ['default/login']) ?>
                         </div>
                         <div class="col-sm-6 text-right">
-                            <?= Html::a(Yee::t('front', "Forgot password ?"), ['default/reset-password']) ?>
+                            <?= Html::a(Yii::t('yee/auth', "Forgot password ?"), ['default/reset-password']) ?>
                         </div>
                     </div>
 

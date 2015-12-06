@@ -3,7 +3,6 @@
 namespace yeesoft\auth\models\forms;
 
 use yeesoft\models\User;
-use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 use yii\helpers\Html;
@@ -61,11 +60,11 @@ class SignupForm extends Model
     public function attributeLabels()
     {
         return [
-            'username' => Yee::t('front', 'Login'),
-            'email' => Yee::t('front', 'E-mail'),
-            'password' => Yee::t('front', 'Password'),
-            'repeat_password' => Yee::t('front', 'Repeat password'),
-            'captcha' => Yee::t('front', 'Captcha'),
+            'username' => Yii::t('yee/auth', 'Login'),
+            'email' => Yii::t('yee/auth', 'E-mail'),
+            'password' => Yii::t('yee/auth', 'Password'),
+            'repeat_password' => Yii::t('yee/auth', 'Repeat password'),
+            'captcha' => Yii::t('yee/auth', 'Captcha'),
         ];
     }
 
@@ -91,12 +90,12 @@ class SignupForm extends Model
             // $user->save(false);
 
             if (!$this->sendConfirmationEmail($user)) {
-                $this->addError('username', Yee::t('front', 'Could not send confirmation email'));
+                $this->addError('username', Yii::t('yee/auth', 'Could not send confirmation email'));
             }
         }
 
         if (!$user->save()) {
-            $this->addError('username', Yee::t('front', 'Login has been taken'));
+            $this->addError('username', Yii::t('yee/auth', 'Login has been taken'));
         } else {
             return $user;
         }
@@ -114,7 +113,7 @@ class SignupForm extends Model
         return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['signup-confirmation'], ['user' => $user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($user->email)
-            ->setSubject(Yee::t('front', 'E-mail confirmation for') . ' ' . Yii::$app->name)
+            ->setSubject(Yii::t('yee/auth', 'E-mail confirmation for') . ' ' . Yii::$app->name)
             ->send();
     }
 

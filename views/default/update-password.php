@@ -1,6 +1,5 @@
 <?php
 
-use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
@@ -8,7 +7,7 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var yeesoft\auth\models\forms\UpdatePasswordForm $model
  */
-$this->title = Yee::t('back', 'Update password');
+$this->title = Yii::t('yee/auth', 'Update password');
 ?>
 
 <?php if (Yii::$app->session->hasFlash('success')): ?>
@@ -26,13 +25,11 @@ $this->title = Yee::t('back', 'Update password');
                     </div>
                     <div class="panel-body">
 
-                        <?php
-                        $form = ActiveForm::begin([
+                        <?php $form = ActiveForm::begin([
                             'id' => 'update-form',
                             'options' => ['autocomplete' => 'off'],
                             'validateOnBlur' => false,
-                        ])
-                        ?>
+                        ]) ?>
 
                         <?php if ($model->scenario != 'restoreViaEmail'): ?>
                             <?= $form->field($model, 'current_password')->passwordInput(['maxlength' => 255]) ?>
@@ -42,7 +39,7 @@ $this->title = Yee::t('back', 'Update password');
 
                         <?= $form->field($model, 'repeat_password')->passwordInput(['maxlength' => 255]) ?>
 
-                        <?= Html::submitButton(Yee::t('front', 'Update'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
+                        <?= Html::submitButton(Yii::t('yee/auth', 'Update'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                         <?php ActiveForm::end() ?>
                     </div>

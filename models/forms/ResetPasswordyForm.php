@@ -3,7 +3,6 @@
 namespace yeesoft\auth\models\forms;
 
 use yeesoft\models\User;
-use yeesoft\Yee;
 use Yii;
 use yii\base\Model;
 
@@ -44,7 +43,7 @@ class ResetPasswordyForm extends Model
     public function validateEmailConfirmedAndUserActive()
     {
         if (!Yii::$app->getModule('yee')->checkAttempts()) {
-            $this->addError('email', Yee::t('front', 'Too many attempts'));
+            $this->addError('email', Yii::t('yee/auth', 'Too many attempts'));
             return false;
         }
 
@@ -57,7 +56,7 @@ class ResetPasswordyForm extends Model
         if ($user) {
             $this->user = $user;
         } else {
-            $this->addError('email', Yee::t('front', 'E-mail is invalid'));
+            $this->addError('email', Yii::t('yee/auth', 'E-mail is invalid'));
         }
     }
 
@@ -68,7 +67,7 @@ class ResetPasswordyForm extends Model
     {
         return [
             'email' => 'E-mail',
-            'captcha' => Yee::t('front', 'Captcha'),
+            'captcha' => Yii::t('yee/auth', 'Captcha'),
         ];
     }
 
@@ -90,7 +89,7 @@ class ResetPasswordyForm extends Model
             ['user' => $this->user])
             ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
             ->setTo($this->email)
-            ->setSubject(Yee::t('front', 'Password reset for') . ' ' . Yii::$app->name)
+            ->setSubject(Yii::t('yee/auth', 'Password reset for') . ' ' . Yii::$app->name)
             ->send();
     }
 }

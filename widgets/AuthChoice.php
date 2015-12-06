@@ -37,9 +37,9 @@ class AuthChoice extends BaseAuthChoice
     public function clientLink($client, $text = null, array $htmlOptions = [])
     {
         if ($text === null) {
-            $text = Html::tag('span', $client->getTitle(),
-                ['class' => 'auth-title']);
+            $text = Html::tag('span', $client->getTitle(), ['class' => 'auth-title']);
         }
+
         if (!array_key_exists('class', $htmlOptions)) {
             $htmlOptions['class'] = $client->getName();
         }
@@ -54,7 +54,6 @@ class AuthChoice extends BaseAuthChoice
                     $htmlOptions['data-popup-height'] = $viewOptions['popupHeight'];
                 }
             }
-
 
             echo Html::a($text, $this->createClientUrl($client), $htmlOptions);
         } else {

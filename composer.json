@@ -1,10 +1,10 @@
 {
   "name": "yeesoft/yii2-yee-auth",
-  "description": "Yee Auth Module",
-  "license": "BSD-3-Clause",
+  "description": "Authorization Module For Yee CMS",
+  "license": "Apache-2.0",
   "authors": [
     {
-      "name": "YeeSoft",
+      "name": "Taras Makitra",
       "email": "makitrataras@gmail.com"
     }
   ],

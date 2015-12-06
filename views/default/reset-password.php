@@ -1,6 +1,5 @@
 <?php
 
-use yeesoft\Yee;
 use yii\bootstrap\ActiveForm;
 use yii\captcha\Captcha;
 use yii\helpers\Html;
@@ -9,7 +8,7 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var yeesoft\auth\models\forms\PasswordRecoveryForm $model
  */
-$this->title = Yee::t('front', 'Reset Password');
+$this->title = Yii::t('yee/auth', 'Reset Password');
 ?>
 
 <?php if (Yii::$app->session->hasFlash('error')): ?>
@@ -27,24 +26,20 @@ $this->title = Yee::t('front', 'Reset Password');
                     </div>
                     <div class="panel-body">
 
-                        <?php
-                        $form = ActiveForm::begin([
+                        <?php $form = ActiveForm::begin([
                             'id' => 'reset-form',
                             'options' => ['autocomplete' => 'off'],
                             'validateOnBlur' => false,
-                        ]);
-                        ?>
+                        ]); ?>
 
                         <?= $form->field($model, 'email')->textInput(['maxlength' => 255]) ?>
 
-                        <?=
-                        $form->field($model, 'captcha')->widget(Captcha::className(), [
+                        <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
                             'template' => '<div class="row"><div class="col-sm-2">{image}</div><div class="col-sm-3">{input}</div></div>',
                             'captchaAction' => ['/auth/captcha']
-                        ])
-                        ?>
+                        ]) ?>
 
-                        <?= Html::submitButton(Yee::t('front', 'Reset'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
+                        <?= Html::submitButton(Yii::t('yee/auth', 'Reset'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                         <?php ActiveForm::end() ?>
                     </div>
