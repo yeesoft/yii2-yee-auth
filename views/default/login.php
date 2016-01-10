@@ -42,7 +42,7 @@ use yii\helpers\Html;
                             <div class="col-sm-12">
                                 <?=
                                 AuthChoice::widget([
-                                    'baseAuthUrl' => ['default/oauth'],
+                                    'baseAuthUrl' => ['/auth/default/oauth', 'language' => false],
                                     'popupMode' => false,
                                 ])
                                 ?>
