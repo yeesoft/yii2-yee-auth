@@ -35,7 +35,7 @@ $this->title = Yii::t('yee/auth', 'Reset Password');
                         <?= $form->field($model, 'email')->textInput(['maxlength' => 255]) ?>
 
                         <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
-                            'template' => '<div class="row"><div class="col-sm-2">{image}</div><div class="col-sm-3">{input}</div></div>',
+                            'template' => '<div class="row"><div class="col-sm-3">{image}</div><div class="col-sm-3">{input}</div></div>',
                             'captchaAction' => ['/auth/captcha']
                         ]) ?>
 

@@ -6,7 +6,7 @@ use yeesoft\models\User;
 use Yii;
 use yii\base\Model;
 
-class ResetPasswordyForm extends Model
+class ResetPasswordForm extends Model
 {
     /**
      * @var User

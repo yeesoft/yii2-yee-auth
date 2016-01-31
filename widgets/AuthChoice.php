@@ -3,6 +3,7 @@
 namespace yeesoft\auth\widgets;
 
 use yeesoft\auth\assets\AuthAsset;
+use yeesoft\auth\models\Auth;
 use Yii;
 use yii\authclient\ClientInterface;
 use yii\authclient\widgets\AuthChoice as BaseAuthChoice;
@@ -16,6 +17,12 @@ use yii\helpers\Html;
  */
 class AuthChoice extends BaseAuthChoice
 {
+    const DISPLAY_ALL = 0;
+    const DISPLAY_AUTHORIZED = 1;
+    const DISPLAY_NON_AUTHORIZED = 2;
+
+    public $displayClients = self::DISPLAY_ALL;
+    public $shortView = false;
 
     /**
      * Initializes the widget.
@@ -36,7 +43,9 @@ class AuthChoice extends BaseAuthChoice
      */
     public function clientLink($client, $text = null, array $htmlOptions = [])
     {
-        if ($text === null) {
+        if ($this->shortView) {
+            $text = '';
+        } elseif ($text === null) {
             $text = Html::tag('span', $client->getTitle(), ['class' => 'auth-title']);
         }
 
@@ -79,12 +88,23 @@ class AuthChoice extends BaseAuthChoice
     protected function renderMainContent()
     {
         echo Html::beginTag('ul', ['class' => 'auth-clients clear']);
-        foreach ($this->getClients() as $externalService) {
-            echo Html::beginTag('li',
-                ['class' => 'auth-client ' . $externalService->getName()]);
-            $this->clientLink($externalService);
-            echo Html::endTag('li');
+
+        $clients = $this->getClients();
+        $authorizedClients = array_keys(Auth::getAuthorizedClients());
+
+
+        foreach ($clients as $externalService) {
+            if ($this->displayClients == self::DISPLAY_ALL
+                || ($this->displayClients == self::DISPLAY_AUTHORIZED && in_array($externalService->getName(), $authorizedClients))
+                || ($this->displayClients == self::DISPLAY_NON_AUTHORIZED && !in_array($externalService->getName(), $authorizedClients))
+            ) {
+                $shortViewClass = ($this->shortView) ? 'short-view' : '';
+                echo Html::beginTag('li', ['class' => 'auth-client ' . $shortViewClass . ' ' . $externalService->getName()]);
+                $this->clientLink($externalService);
+                echo Html::endTag('li');
+            }
         }
+
         echo Html::endTag('ul');
     }
 }

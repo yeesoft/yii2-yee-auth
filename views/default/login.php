@@ -54,7 +54,7 @@ use yii\helpers\Html;
                                 <?= Html::a(Yii::t('yee/auth', "Registration"), ['default/signup']) ?>
                             </div>
                             <div class="col-sm-6 text-right">
-                                <?= Html::a(Yii::t('yee/auth', "Forgot password ?"), ['default/reset-password']) ?>
+                                <?= Html::a(Yii::t('yee/auth', "Forgot password?"), ['default/reset-password']) ?>
                             </div>
                         </div>
 

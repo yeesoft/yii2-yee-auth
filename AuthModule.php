@@ -18,6 +18,7 @@ class AuthModule extends \yii\base\Module
      * Version number of the module.
      */
     const VERSION = '0.1-a';
+    const PARAMS_SESSION_ID = 'authUserParams';
 
     /**
      * Controller namespace
@@ -26,4 +27,31 @@ class AuthModule extends \yii\base\Module
      */
     public $controllerNamespace = 'yeesoft\auth\controllers';
 
+    public static function getAuthAttributes()
+    {
+        return [
+            'google' => [
+                'email' => 'emails.0.value',
+                'username' => 'displayName',
+            ],
+            'facebook' => [
+                'email' => 'email',
+                'username' => 'name',
+            ],
+            'twitter' => [
+                'username' => 'screen_name',
+            ],
+            'github' => [
+                'email' => 'email',
+                'username' => 'name',
+            ],
+            'linkedin' => [
+                'email' => 'email',
+                'username' => 'first-name',
+            ],
+            'vkontakte' => [
+                'username' => 'first_name',
+            ],
+        ];
+    }
 }

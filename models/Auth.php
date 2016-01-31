@@ -3,6 +3,8 @@
 namespace yeesoft\auth\models;
 
 use yeesoft\models\User;
+use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "auth".
@@ -54,5 +56,25 @@ class Auth extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public static function getAuthorizedClients()
+    {
+        $userId = Yii::$app->user->id;
+        $clients = Auth::find()->where(['user_id' => $userId])->select(['source', 'source_id'])->asArray()->all();
+        return ArrayHelper::map($clients, 'source', 'source_id');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public static function unlinkClient($client)
+    {
+        $userId = Yii::$app->user->id;
+        $client = Auth::find()->where(['user_id' => $userId, 'source' => $client])->one();
+        return ($client) ? $client->delete() : false;
     }
 }

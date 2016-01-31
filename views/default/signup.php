@@ -46,7 +46,7 @@ $this->title = Yii::t('yee/auth', 'Signup');
                             <?= Html::a(Yii::t('yee/auth', "Login"), ['default/login']) ?>
                         </div>
                         <div class="col-sm-6 text-right">
-                            <?= Html::a(Yii::t('yee/auth', "Forgot password ?"), ['default/reset-password']) ?>
+                            <?= Html::a(Yii::t('yee/auth', "Forgot password?"), ['default/reset-password']) ?>
                         </div>
                     </div>
 

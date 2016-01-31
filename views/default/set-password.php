@@ -7,14 +7,8 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var yeesoft\auth\models\forms\UpdatePasswordForm $model
  */
-$this->title = Yii::t('yee/auth', 'Update Password');
+$this->title = Yii::t('yee/auth', 'Set Password');
 ?>
-
-<?php if (Yii::$app->session->hasFlash('success')): ?>
-    <div class="alert alert-success text-center">
-        <?= Yii::$app->session->getFlash('success') ?>
-    </div>
-<?php endif; ?>
 
     <div id="update-wrapper">
         <div class="row">
@@ -30,10 +24,6 @@ $this->title = Yii::t('yee/auth', 'Update Password');
                             'options' => ['autocomplete' => 'off'],
                             'validateOnBlur' => false,
                         ]) ?>
-
-                        <?php if ($model->scenario != 'restoreViaEmail'): ?>
-                            <?= $form->field($model, 'current_password')->passwordInput(['maxlength' => 255]) ?>
-                        <?php endif; ?>
 
                         <?= $form->field($model, 'password')->passwordInput(['maxlength' => 255]) ?>
 

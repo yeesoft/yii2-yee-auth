@@ -2,21 +2,30 @@
 
 namespace yeesoft\auth\controllers;
 
+use yeesoft\auth\assets\AvatarAsset;
+use yeesoft\auth\AuthModule;
+use yeesoft\auth\helpers\AvatarHelper;
 use yeesoft\auth\models\Auth;
 use yeesoft\auth\models\forms\ConfirmEmailForm;
 use yeesoft\auth\models\forms\LoginForm;
-use yeesoft\auth\models\forms\ResetPasswordyForm;
+use yeesoft\auth\models\forms\ResetPasswordForm;
+use yeesoft\auth\models\forms\SetEmailForm;
+use yeesoft\auth\models\forms\SetPasswordForm;
+use yeesoft\auth\models\forms\SetUsernameForm;
 use yeesoft\auth\models\forms\SignupForm;
 use yeesoft\auth\models\forms\UpdatePasswordForm;
 use yeesoft\components\AuthEvent;
 use yeesoft\controllers\BaseController;
 use yeesoft\models\User;
 use Yii;
+use yii\base\DynamicModel;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\web\UploadedFile;
 use yii\widgets\ActiveForm;
 
 class DefaultController extends BaseController
@@ -26,7 +35,9 @@ class DefaultController extends BaseController
      */
     public $freeAccessActions = ['login', 'logout', 'captcha', 'oauth', 'signup',
         'confirm-email', 'confirm-registration-email', 'confirm-email-receive',
-        'reset-password', 'reset-password-request', 'update-password'];
+        'reset-password', 'reset-password-request', 'update-password', 'set-email',
+        'set-username', 'set-password', 'profile', 'upload-avatar', 'remove-avatar',
+        'unlink-oauth'];
 
     /**
      * @return array
@@ -36,7 +47,7 @@ class DefaultController extends BaseController
         return [
             'captcha' => Yii::$app->getModule('yee')->captchaOptions,
             'oauth' => [
-                'class' => 'yii\authclient\AuthAction',
+                'class' => 'yeesoft\auth\AuthAction',
                 'successCallback' => [$this, 'onAuthSuccess'],
             ],
         ];
@@ -49,34 +60,50 @@ class DefaultController extends BaseController
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'logout' => ['post'],
+                    'upload-avatar' => ['post'],
+                    'remove-avatar' => ['post'],
                 ],
             ],
         ]);
     }
 
-    public function onAuthSuccess($client)
+    protected function parseClientAttributes($client)
     {
-        $values = [
-            'google' => [
-                'email' => 'emails.0.value',
-                'username' => 'displayName',
-            ],
-            'facebook' => [
-                'email' => 'email',
-                'username' => 'name',
-            ],
-            'twitter' => [
-                'username' => 'screen_name',
-            ],
+        $authAttributes = AuthModule::getAuthAttributes();
+        $attributes = $client->getUserAttributes();
+        $source = $client->getId();
+
+        $result = [
+            'source' => (string)$source,
+            'source_id' => (string)$attributes['id'],
         ];
 
-        $attributes = $client->getUserAttributes();
-        $authClient = $client->getId();
+        $emailPath = ArrayHelper::getValue($authAttributes, "$source.email");
+        $email = ($emailPath) ? ArrayHelper::getValue($attributes, $emailPath) : NULL;
+
+        if (!empty($email)) {
+            $result['email'] = (string)$email;
+        }
+
+        $usernamePath = ArrayHelper::getValue($authAttributes, "$source.username");
+        $username = ArrayHelper::getValue($attributes, $usernamePath);
+
+        if (!empty($username)) {
+            $result['username'] = (string)$username;
+        }
+
+        return $result;
+    }
+
+    public function onAuthSuccess($client)
+    {
+        $attributes = $this->parseClientAttributes($client);
+        Yii::$app->session->set(AuthModule::PARAMS_SESSION_ID, $attributes);
 
         /* @var $auth Auth */
         $auth = Auth::find()->where([
-            'source' => $client->getId(),
-            'source_id' => $attributes['id'],
+            'source' => $attributes['source'],
+            'source_id' => $attributes['source_id'],
         ])->one();
 
         if (Yii::$app->user->isGuest) {
@@ -84,52 +111,156 @@ class DefaultController extends BaseController
                 $user = $auth->user;
                 Yii::$app->user->login($user);
             } else { // signup
-                $emailPath = ArrayHelper::getValue($values, "$authClient.email");
-                $usernamePath = ArrayHelper::getValue($values, "$authClient.username");
-                $email = ($emailPath) ? ArrayHelper::getValue($attributes, $emailPath) : '';
-
-                if ($emailPath && $email && User::find()->where(['email' => $email])->exists()) {
+                if (isset($attributes['email']) && $attributes['email'] && User::find()->where(['email' => $attributes['email']])->exists()) {
                     Yii::$app->getSession()->setFlash('error', [
-                        Yii::t('app', "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.", ['client' => $client->getTitle()]),
+                        Yii::t('yee/auth', "User with the same email as in {client} account already exists but isn't linked to it. Login using email first to link it.", ['client' => $client->getTitle()]),
                     ]);
                     Yii::$app->getResponse()->redirect(['auth/default/login']);
                 } else {
-                    $password = Yii::$app->security->generateRandomString(6);
-                    $user = new User([
-                        'username' => ArrayHelper::getValue($attributes, $usernamePath),
-                        'email' => $email,
-                        'password' => $password,
-                    ]);
-                    $user->generateAuthKey();
-                    $user->generatePasswordResetToken();
-                    $transaction = $user->getDb()->beginTransaction();
-                    if ($user->save()) {
-                        $auth = new Auth([
-                            'user_id' => $user->id,
-                            'source' => $client->getId(),
-                            'source_id' => (string)$attributes['id'],
-                        ]);
-                        if ($auth->save()) {
-                            $transaction->commit();
-                            Yii::$app->user->login($user);
-                        } else {
-                            print_r($auth->getErrors());
-                        }
-                    } else {
-                        print_r($user->getErrors());
-                    }
+                    return $this->createUser($attributes);
                 }
             }
         } else { // user already logged in
             if (!$auth) { // add auth provider
                 $auth = new Auth([
                     'user_id' => Yii::$app->user->id,
-                    'source' => $client->getId(),
-                    'source_id' => $attributes['id'],
+                    'source' => $attributes['source'],
+                    'source_id' => $attributes['source_id'],
                 ]);
                 $auth->save();
             }
         }
+    }
+
+    /**
+     * @return string|\yii\web\Response
+     */
+    public function actionSetEmail()
+    {
+        $attributes = Yii::$app->session->get(AuthModule::PARAMS_SESSION_ID);
+
+        if (!Yii::$app->user->isGuest || !$attributes || !is_array($attributes)) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        $model = new SetEmailForm();
+
+        if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
+            $attributes['email'] = $model->email;
+            Yii::$app->session->set(AuthModule::PARAMS_SESSION_ID, $attributes);
+            return $this->createUser($attributes);
+        }
+
+        return $this->renderIsAjax('set-email', compact('model'));
+    }
+
+    /**
+     * @return string|\yii\web\Response
+     */
+    public function actionSetUsername()
+    {
+        $attributes = Yii::$app->session->get(AuthModule::PARAMS_SESSION_ID);
+
+        if (!Yii::$app->user->isGuest || !$attributes || !is_array($attributes)) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        $model = new SetUsernameForm();
+
+        if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
+            $attributes['username'] = $model->username;
+            Yii::$app->session->set(AuthModule::PARAMS_SESSION_ID, $attributes);
+            return $this->createUser($attributes);
+        }
+
+        return $this->renderIsAjax('set-username', compact('model'));
+    }
+
+    /**
+     * @return string|\yii\web\Response
+     */
+    public function actionSetPassword()
+    {
+        $attributes = Yii::$app->session->get(AuthModule::PARAMS_SESSION_ID);
+
+        if (!Yii::$app->user->isGuest || !$attributes || !is_array($attributes)) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        $model = new SetPasswordForm();
+
+        if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        if ($model->load(Yii::$app->request->post()) AND $model->validate()) {
+            $attributes['password'] = $model->password;
+            Yii::$app->session->set(AuthModule::PARAMS_SESSION_ID, $attributes);
+            return $this->createUser($attributes);
+        }
+
+        return $this->renderIsAjax('set-password', compact('model'));
+    }
+
+    protected function createUser($attributes)
+    {
+        $user = new User([
+            'username' => isset($attributes['username']) ? $attributes['username'] : NULL,
+            'email' => isset($attributes['email']) ? $attributes['email'] : NULL,
+            'password' => isset($attributes['password']) ? $attributes['password'] : NULL,
+            'repeat_password' => isset($attributes['password']) ? $attributes['password'] : NULL,
+        ]);
+
+        $user->setScenario(User::SCENARIO_NEW_USER);
+        $user->generateAuthKey();
+        //$user->generatePasswordResetToken();
+
+        $transaction = $user->getDb()->beginTransaction();
+
+        if ($user->save()) {
+
+            $auth = new Auth([
+                'user_id' => $user->id,
+                'source' => $attributes['source'],
+                'source_id' => $attributes['source_id'],
+            ]);
+
+            if ($auth->save()) {
+                $transaction->commit();
+                Yii::$app->user->login($user);
+            } else {
+                Yii::$app->session->setFlash('error', 'Error 901: ' . Yii::t('yee/auth', "Authentication error occurred."));
+                return Yii::$app->response->redirect(Url::to(['/auth/default/login']));
+            }
+        } else {
+
+            $errors = $user->getErrors();
+            $fields = ['username', 'email', 'password'];
+
+            foreach ($fields as $field) {
+                if (isset($errors[$field])) {
+                    Yii::$app->session->setFlash('error', $user->getFirstError($field));
+                    return Yii::$app->response->redirect(Url::to(['/auth/default/set-' . $field]));
+                }
+            }
+
+            Yii::$app->session->setFlash('error', 'Error 902: ' . Yii::t('yee/auth', "Authentication error occurred."));
+            return Yii::$app->response->redirect(Url::to(['/auth/default/login']));
+        }
+
+        Yii::$app->session->remove(AuthModule::PARAMS_SESSION_ID);
+        return Yii::$app->response->redirect(Url::to(['/']));
     }
 
     /**
@@ -140,7 +271,7 @@ class DefaultController extends BaseController
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
         $model = new LoginForm();
@@ -175,10 +306,10 @@ class DefaultController extends BaseController
     public function actionSignup()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
-        $model = new SignupForm;
+        $model = new SignupForm();
 
         if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -222,8 +353,7 @@ class DefaultController extends BaseController
     {
         if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
 
-            $model = new SignupForm;
-
+            $model = new SignupForm();
             $user = $model->checkConfirmationToken($token);
 
             if ($user) {
@@ -243,7 +373,7 @@ class DefaultController extends BaseController
     public function actionUpdatePassword()
     {
         if (Yii::$app->user->isGuest) {
-            return $this->goHome();
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
         $user = User::getCurrentUser();
@@ -274,10 +404,10 @@ class DefaultController extends BaseController
     public function actionResetPassword()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
-        $model = new ResetPasswordyForm();
+        $model = new ResetPasswordForm();
 
         if (Yii::$app->request->isAjax AND $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -310,7 +440,7 @@ class DefaultController extends BaseController
     public function actionResetPasswordRequest($token)
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
         $user = User::findByConfirmationToken($token);
@@ -343,7 +473,7 @@ class DefaultController extends BaseController
     public function actionConfirmEmail()
     {
         if (Yii::$app->user->isGuest) {
-            return $this->goHome();
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
         $user = User::getCurrentUser();
@@ -390,7 +520,7 @@ class DefaultController extends BaseController
         $user = User::findByConfirmationToken($token);
 
         if (!$user) {
-            throw new NotFoundHttpException(Yii::t('yee/auth', 'Token not found. It may be expired'));
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
         $user->email_confirmed = 1;
@@ -415,5 +545,91 @@ class DefaultController extends BaseController
         Yii::$app->getModule('yee')->trigger($eventName, $event);
 
         return $event->isValid;
+    }
+
+    /**
+     * @return string|\yii\web\Response
+     */
+    public function actionProfile()
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        $model = User::findIdentity(Yii::$app->user->id);
+
+        if ($model->load(Yii::$app->request->post()) AND $model->save()) {
+            Yii::$app->session->setFlash('success', Yii::t('yii', 'Your item has been updated.'));
+        }
+
+        return $this->renderIsAjax('profile', compact('model'));
+    }
+
+    public function actionUploadAvatar()
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $model = new DynamicModel(['image']);
+        $model->addRule('image', 'file', ['skipOnEmpty' => false, 'extensions' => 'png, jpg']);
+
+        if (Yii::$app->request->isPost) {
+            $model->image = UploadedFile::getInstanceByName('image');
+
+            if ($model->validate()) {
+                try {
+                    return AvatarHelper::saveAvatar($model->image);
+                } catch (Exception $exc) {
+                    Yii::$app->response->statusCode = 400;
+                    return Yii::t('yee', 'An unknown error occurred.');
+                }
+            } else {
+                $errors = $model->getErrors();
+                Yii::$app->response->statusCode = 400;
+                return $model->getFirstError(key($errors));
+            }
+        }
+
+        return;
+    }
+
+    public function actionRemoveAvatar()
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        try {
+            Yii::$app->user->identity->removeAvatar();
+            AvatarAsset::register($this->view);
+            return AvatarAsset::getDefaultAvatar('large');
+        } catch (Exception $exc) {
+            Yii::$app->response->statusCode = 400;
+            return 'Error occured!';
+        }
+
+        return;
+    }
+
+    public function actionUnlinkOauth($redirectUrl = null)
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
+        }
+
+        $client = Yii::$app->getRequest()->get('authclient');
+        if (!Auth::unlinkClient($client)) {
+            Yii::$app->session->addFlash('error', 'Error cant unlink');
+        }
+
+        if ($redirectUrl === null) {
+            $redirectUrl = ['/auth/default/profile'];
+        }
+
+        return $this->redirect($redirectUrl);
     }
 }
