@@ -69,7 +69,7 @@ AvatarAsset::register($this);
                 </div>
 
                 <div class="oauth-services">
-                    <div>
+                    <div class="oauth-authorized-services">
                         <div class="label label-primary space-down"
                              title="<?= Yii::t('yee/auth', 'Click to unlink service') ?>" data-toggle="tooltip"
                              data-placement="right">
@@ -127,3 +127,13 @@ AvatarAsset::register($this);
         </div>
     </div>
 </div>
+<?php
+$confRemovingAuthMessage = Yii::t('yee/auth', 'Are you sure you want to unlink this authorization?');
+$confRemovingAvatarMessage = Yii::t('yee/auth', 'Are you sure you want to delete your profile picture?');
+$js = <<<JS
+confRemovingAuthMessage = "{$confRemovingAuthMessage}";
+confRemovingAvatarMessage = "{$confRemovingAvatarMessage}";
+JS;
+
+$this->registerJs($js, yii\web\View::POS_READY);
+?>

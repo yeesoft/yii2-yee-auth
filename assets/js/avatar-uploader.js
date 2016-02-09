@@ -56,27 +56,32 @@ $(function () {
         var action = $(this).data('action');
         var uploader = $(this).closest('.image-uploader');
 
-        $(uploader).find('.upload-status').empty();
-        $(imageRemove).find('i').removeClass('fa-remove').addClass('fa-spin fa-repeat');
+        if (confirm(confRemovingAvatarMessage)) {
+            $(uploader).find('.upload-status').empty();
+            $(imageRemove).find('i').removeClass('fa-remove').addClass('fa-spin fa-repeat');
 
-        $.ajax({
-            url: action,
-            type: 'POST',
-            dataType: "json",
-            contentType: false,
-            cache: false,
-            processData: false,
-            complete: function () {
-                $(imageRemove).find('i').removeClass('fa-spin fa-repeat').addClass('fa-remove');
-            },
-            error: function (data) {
-                $(uploader).find('.upload-status').html(data.responseText);
-            },
-            success: function (data) {
-                $(uploader).find('.image-preview img').attr('src', data);
-                $(uploader).find('.upload-status').empty();
-            }
-        });
+            $.ajax({
+                url: action,
+                type: 'POST',
+                dataType: "json",
+                contentType: false,
+                cache: false,
+                processData: false,
+                complete: function () {
+                    $(imageRemove).find('i').removeClass('fa-spin fa-repeat').addClass('fa-remove');
+                },
+                error: function (data) {
+                    $(uploader).find('.upload-status').html(data.responseText);
+                },
+                success: function (data) {
+                    $(uploader).find('.image-preview img').attr('src', data);
+                    $(uploader).find('.upload-status').empty();
+                }
+            });
+        }
     });
 
+    $('.oauth-authorized-services .auth-client a').on('click', function () {
+        return confirm(confRemovingAuthMessage);
+    });
 });

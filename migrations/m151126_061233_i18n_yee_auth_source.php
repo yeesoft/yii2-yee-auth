@@ -13,6 +13,8 @@ class m151126_061233_i18n_yee_auth_source extends SourceMessagesMigration
     public function getMessages()
     {
         return [
+            'Are you sure you want to delete your profile picture?' => 1,
+            'Are you sure you want to unlink this authorization?' => 1,
             'Authentication error occurred.' => 1,
             'Authorization' => 1,
             'Authorized Services' => 1,
