@@ -52,6 +52,9 @@ class AuthModule extends \yii\base\Module
             'vkontakte' => [
                 'username' => 'first_name',
             ],
+            'odnoklassniki' => [
+                'username' => 'name',
+            ],
         ];
     }
 }

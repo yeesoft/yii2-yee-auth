@@ -73,9 +73,11 @@ class DefaultController extends BaseController
         $attributes = $client->getUserAttributes();
         $source = $client->getId();
 
+        $idKey = ($source !== 'odnoklassniki') ? 'id' : 'uid';
+
         $result = [
             'source' => (string)$source,
-            'source_id' => (string)$attributes['id'],
+            'source_id' => (string)$attributes[$idKey],
         ];
 
         $emailPath = ArrayHelper::getValue($authAttributes, "$source.email");
