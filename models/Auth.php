@@ -14,7 +14,7 @@ use yii\helpers\ArrayHelper;
  * @property string $source
  * @property string $source_id
  */
-class Auth extends \yii\db\ActiveRecord
+class Auth extends \yeesoft\db\ActiveRecord
 {
 
     /**
@@ -22,7 +22,7 @@ class Auth extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'auth';
+        return '{{%auth}}';
     }
 
     /**

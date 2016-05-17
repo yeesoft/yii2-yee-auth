@@ -17,7 +17,7 @@ class AuthModule extends \yii\base\Module
     /**
      * Version number of the module.
      */
-    const VERSION = '0.1-a';
+    const VERSION = '0.1.0';
     const PARAMS_SESSION_ID = 'authUserParams';
 
     /**

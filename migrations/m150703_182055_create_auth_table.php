@@ -6,6 +6,8 @@ use yii\db\Schema;
 class m150703_182055_create_auth_table extends Migration
 {
 
+    const TABLE_NAME = '{{%auth}}';
+    
     public function safeUp()
     {
         $tableOptions = null;
@@ -13,19 +15,19 @@ class m150703_182055_create_auth_table extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB';
         }
 
-        $this->createTable('auth', [
-            'id' => 'pk',
-            'user_id' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'source' => Schema::TYPE_STRING . '(255) NOT NULL',
-            'source_id' => Schema::TYPE_STRING . '(255) NOT NULL',
+        $this->createTable(self::TABLE_NAME, [
+            'id' => $this->primaryKey(),
+            'user_id' => $this->integer()->notNull(),
+            'source' => $this->string(255)->notNull(),
+            'source_id' => $this->string(255)->notNull(),
         ], $tableOptions);
 
-        $this->addForeignKey('fk_auth_user', 'auth', 'user_id', 'user', 'id', 'RESTRICT', 'RESTRICT');
+        $this->addForeignKey('fk_auth_user', self::TABLE_NAME, 'user_id', '{{%user}}', 'id', 'RESTRICT', 'RESTRICT');
     }
 
     public function safeDown()
     {
-        $this->dropForeignKey('fk_auth_user', 'auth');
-        $this->dropTable('auth');
+        $this->dropForeignKey('fk_auth_user', self::TABLE_NAME);
+        $this->dropTable(self::TABLE_NAME);
     }
 }

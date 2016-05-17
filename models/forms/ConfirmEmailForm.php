@@ -81,7 +81,7 @@ class ConfirmEmailForm extends Model
     public function getTokenTimeLeft($inMinutes = false)
     {
         if ($this->user AND $this->user->confirmation_token) {
-            $expire = Yii::$app->getModule('yee')->confirmationTokenExpire;
+            $expire = Yii::$app->yee->confirmationTokenExpire;
 
             $parts = explode('_', $this->user->confirmation_token);
             $timestamp = (int)end($parts);
@@ -113,9 +113,9 @@ class ConfirmEmailForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['confirm-email'],
+        return Yii::$app->mailer->compose(Yii::$app->yee->emailTemplates['confirm-email'],
             ['user' => $this->user])
-            ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
+            ->setFrom(Yii::$app->yee->emailSender)
             ->setTo($this->email)
             ->setSubject(Yii::t('yee/auth', 'E-mail confirmation for') . ' ' . Yii::$app->name)
             ->send();

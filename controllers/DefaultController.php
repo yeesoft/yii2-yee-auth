@@ -26,7 +26,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
-use yii\widgets\ActiveForm;
+use yeesoft\widgets\ActiveForm;
 
 class DefaultController extends BaseController
 {
@@ -45,7 +45,7 @@ class DefaultController extends BaseController
     public function actions()
     {
         return [
-            'captcha' => Yii::$app->getModule('yee')->captchaOptions,
+            'captcha' => Yii::$app->yee->captchaAction,
             'oauth' => [
                 'class' => 'yeesoft\auth\AuthAction',
                 'successCallback' => [$this, 'onAuthSuccess'],
@@ -327,10 +327,10 @@ class DefaultController extends BaseController
                 // Trigger event "after registration" and checks if it's valid
                 if ($user && $this->triggerModuleEvent(AuthEvent::AFTER_REGISTRATION, ['model' => $model, 'user' => $user])) {
 
-                    if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
+                    if (Yii::$app->yee->emailConfirmationRequired) {
                         return $this->renderIsAjax('signup-confirmation', compact('user'));
                     } else {
-                        $user->assignRoles(Yii::$app->getModule('yee')->rolesAfterRegistration);
+                        $user->assignRoles(Yii::$app->yee->defaultRoles);
 
                         Yii::$app->user->login($user);
 
@@ -353,7 +353,7 @@ class DefaultController extends BaseController
      */
     public function actionConfirmRegistrationEmail($token)
     {
-        if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
+        if (Yii::$app->yee->emailConfirmationRequired) {
 
             $model = new SignupForm();
             $user = $model->checkConfirmationToken($token);
@@ -544,7 +544,7 @@ class DefaultController extends BaseController
     {
         $event = new AuthEvent($data);
 
-        Yii::$app->getModule('yee')->trigger($eventName, $event);
+        Yii::$app->yee->trigger($eventName, $event);
 
         return $event->isValid;
     }

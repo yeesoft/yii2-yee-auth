@@ -35,8 +35,8 @@ class SignupForm extends Model
             ],
             ['username', 'purgeXSS'],
             ['username', 'string', 'max' => 50],
-            ['username', 'match', 'pattern' => Yii::$app->getModule('yee')->usernameRegexp],
-            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->getModule('yee')->usernameBlackRegexp],
+            ['username', 'match', 'pattern' => Yii::$app->yee->usernameRegexp],
+            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->yee->usernameBlackRegexp],
             ['password', 'string', 'max' => 255],
             ['repeat_password', 'compare', 'compareAttribute' => 'password'],
         ];
@@ -84,7 +84,7 @@ class SignupForm extends Model
         $user->username = $this->username;
         $user->email = $this->email;
 
-        if (Yii::$app->getModule('yee')->emailConfirmationRequired) {
+        if (Yii::$app->yee->emailConfirmationRequired) {
             $user->status = User::STATUS_INACTIVE;
             $user->generateConfirmationToken();
             // $user->save(false);
@@ -110,8 +110,8 @@ class SignupForm extends Model
      */
     protected function sendConfirmationEmail($user)
     {
-        return Yii::$app->mailer->compose(Yii::$app->getModule('yee')->mailerOptions['signup-confirmation'], ['user' => $user])
-            ->setFrom(Yii::$app->getModule('yee')->mailerOptions['from'])
+        return Yii::$app->mailer->compose(Yii::$app->yee->emailTemplates['signup-confirmation'], ['user' => $user])
+            ->setFrom(Yii::$app->yee->emailSender)
             ->setTo($user->email)
             ->setSubject(Yii::t('yee/auth', 'E-mail confirmation for') . ' ' . Yii::$app->name)
             ->send();
@@ -129,13 +129,12 @@ class SignupForm extends Model
         $user = User::findInactiveByConfirmationToken($token);
 
         if ($user) {
+            
             $user->status = User::STATUS_ACTIVE;
             $user->email_confirmed = 1;
             $user->removeConfirmationToken();
             $user->save(false);
-
-            $user->assignRoles(Yii::$app->getModule('yee')->rolesAfterRegistration);
-
+            $user->assignRoles(Yii::$app->yee->defaultRoles);
             Yii::$app->user->login($user);
 
             return $user;
