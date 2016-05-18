@@ -36,6 +36,7 @@ class UpdatePasswordForm extends Model
         return [
             [['password', 'repeat_password'], 'required'],
             [['password', 'repeat_password', 'current_password'], 'string', 'max' => 255],
+            [['password', 'repeat_password', 'current_password'], 'string', 'min' => 6],
             [['password', 'repeat_password', 'current_password'], 'trim'],
             ['repeat_password', 'compare', 'compareAttribute' => 'password'],
             ['current_password', 'required', 'except' => 'restoreViaEmail'],
