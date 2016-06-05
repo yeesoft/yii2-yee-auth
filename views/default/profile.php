@@ -16,6 +16,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
 AvatarUploaderAsset::register($this);
 AvatarAsset::register($this);
+
+$col12 = $this->context->module->gridColumns;
+$col9 = (int) ($col12 * 3 / 4);
+$col6 = (int) ($col12 / 2);
+$col3 = (int) ($col12 / 4);
+
 ?>
 
 <div class="panel panel-default">
@@ -28,7 +34,7 @@ AvatarAsset::register($this);
     <div class="panel-body">
 
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-<?= $col3 ?>">
 
                 <div class="image-uploader">
                     <?php ActiveForm::begin([
@@ -102,7 +108,7 @@ AvatarAsset::register($this);
 
             </div>
 
-            <div class="col-md-9">
+            <div class="col-md-<?= $col9 ?>">
 
                 <?php $form = ActiveForm::begin([
                     'id' => 'user',
@@ -110,12 +116,12 @@ AvatarAsset::register($this);
                     'validateOnBlur' => false,
                 ]) ?>
 
-                <?= $form->field($model, 'username')->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
+                <?= $form->field($model, 'username', ['wrapperOptions' => ['class' => 'col-sm-12']])->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
 
-                <?= $form->field($model, 'email')->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
+                <?= $form->field($model, 'email', ['wrapperOptions' => ['class' => 'col-sm-12']])->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
 
                 <div class="form-group">
-                    <div class="col-sm-offset-3 col-sm-9">
+                    <div class="col-sm-offset-<?= $col3 ?> col-sm-<?= $col9 ?>">
                         <?= Html::submitButton(Yii::t('yee/auth', 'Save Profile'), ['class' => 'btn btn-primary']) ?>
                     </div>
                 </div>

@@ -9,6 +9,11 @@ use yii\helpers\Html;
  * @var yeesoft\auth\models\forms\PasswordRecoveryForm $model
  */
 $this->title = Yii::t('yee/auth', 'Reset Password');
+
+$col12 = $this->context->module->gridColumns;
+$col9 = (int) ($col12 * 3 / 4);
+$col6 = (int) ($col12 / 2);
+$col3 = (int) ($col12 / 4);
 ?>
 
 <?php if (Yii::$app->session->hasFlash('error')): ?>
@@ -19,7 +24,7 @@ $this->title = Yii::t('yee/auth', 'Reset Password');
 
     <div id="update-wrapper">
         <div class="row">
-            <div class="col-md-6 col-md-offset-2">
+            <div class="col-md-<?= $col6 ?> col-md-offset-<?= $col3 ?>">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title"><?= $this->title ?></h3>
@@ -35,7 +40,7 @@ $this->title = Yii::t('yee/auth', 'Reset Password');
                         <?= $form->field($model, 'email')->textInput(['maxlength' => 255]) ?>
 
                         <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
-                            'template' => '<div class="row"><div class="col-sm-3">{image}</div><div class="col-sm-3">{input}</div></div>',
+                            'template' => '<div class="row"><div class="col-sm-' . $col3 . '">{image}</div><div class="col-sm-' . $col3 . '">{input}</div></div>',
                             'captchaAction' => ['/auth/captcha']
                         ]) ?>
 

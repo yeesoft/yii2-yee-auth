@@ -8,6 +8,11 @@ use yii\helpers\Html;
  * @var yeesoft\auth\models\forms\ConfirmEmailForm $model
  */
 $this->title = Yii::t('yee/auth', 'Confirm E-mail');
+
+$col12 = $this->context->module->gridColumns;
+$col9 = (int) ($col12 * 3 / 4);
+$col6 = (int) ($col12 / 2);
+$col3 = (int) ($col12 / 4);
 ?>
 
 <?php if (Yii::$app->session->hasFlash('error')): ?>
@@ -18,7 +23,7 @@ $this->title = Yii::t('yee/auth', 'Confirm E-mail');
 
 <div id="update-wrapper">
     <div class="row">
-        <div class="col-md-6 col-md-offset-2">
+        <div class="col-md-<?= $col6 ?> col-md-offset-<?= $col3 ?>">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><?= $this->title ?></h3>
@@ -36,7 +41,7 @@ $this->title = Yii::t('yee/auth', 'Confirm E-mail');
                         <?= $form->field($model, 'email')->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
 
                         <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-9">
+                            <div class="col-sm-offset-<?= $col3 ?> col-sm-<?= $col9 ?>">
                                 <?= Html::submitButton(Yii::t('yee/auth', 'Confirm'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
                             </div>
                         </div>

@@ -9,11 +9,16 @@ use yii\helpers\Html;
  * @var yeesoft\auth\models\forms\RegistrationForm $model
  */
 $this->title = Yii::t('yee/auth', 'Signup');
+
+$col12 = $this->context->module->gridColumns;
+$col9 = (int) ($col12 * 3 / 4);
+$col6 = (int) ($col12 / 2);
+$col3 = (int) ($col12 / 4);
 ?>
 
 <div id="signup-wrapper">
     <div class="row">
-        <div class="col-md-6 col-md-offset-2">
+        <div class="col-md-<?= $col6 ?> col-md-offset-<?= $col3 ?>">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><?= $this->title ?></h3>
@@ -35,17 +40,17 @@ $this->title = Yii::t('yee/auth', 'Signup');
                     <?= $form->field($model, 'repeat_password')->passwordInput(['maxlength' => 255]) ?>
 
                     <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
-                        'template' => '<div class="row"><div class="col-sm-3">{image}</div><div class="col-sm-3">{input}</div></div>',
+                        'template' => '<div class="row"><div class="col-sm-' . $col3 . '">{image}</div><div class="col-sm-' . $col3 . '">{input}</div></div>',
                         'captchaAction' => [\yii\helpers\Url::to(['/auth/captcha'])]
                     ]) ?>
 
                     <?= Html::submitButton(Yii::t('yee/auth', 'Signup'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                     <div class="row registration-block">
-                        <div class="col-sm-6">
+                        <div class="col-sm-<?= $col6 ?>">
                             <?= Html::a(Yii::t('yee/auth', "Login"), ['default/login']) ?>
                         </div>
-                        <div class="col-sm-6 text-right">
+                        <div class="col-sm-<?= $col6 ?> text-right">
                             <?= Html::a(Yii::t('yee/auth', "Forgot password?"), ['default/reset-password']) ?>
                         </div>
                     </div>

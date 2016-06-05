@@ -8,6 +8,11 @@ use yii\helpers\Html;
  * @var yeesoft\auth\models\forms\UpdatePasswordForm $model
  */
 $this->title = Yii::t('yee/auth', 'Update Password');
+
+$col12 = $this->context->module->gridColumns;
+$col9 = (int) ($col12 * 3 / 4);
+$col6 = (int) ($col12 / 2);
+$col3 = (int) ($col12 / 4);
 ?>
 
 <?php if (Yii::$app->session->hasFlash('success')): ?>
@@ -18,7 +23,7 @@ $this->title = Yii::t('yee/auth', 'Update Password');
 
     <div id="update-wrapper">
         <div class="row">
-            <div class="col-md-6 col-md-offset-2">
+            <div class="col-md-<?= $col6 ?> col-md-offset-<?= $col3 ?>">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title"><?= $this->title ?></h3>

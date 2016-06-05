@@ -8,11 +8,15 @@ use yeesoft\auth\widgets\AuthChoice;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
+$col12 = $this->context->module->gridColumns;
+$col9 = (int) ($col12 * 3 / 4);
+$col6 = (int) ($col12 / 2);
+$col3 = (int) ($col12 / 4);
 ?>
 
     <div id="login-wrapper">
         <div class="row">
-            <div class="col-md-6 col-md-offset-2">
+            <div class="col-md-<?= $col6 ?> col-md-offset-<?= $col3 ?>">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title"><?= Yii::t('yee/auth', 'Authorization') ?></h3>
@@ -39,7 +43,7 @@ use yii\helpers\Html;
                         <?= Html::submitButton(Yii::t('yee/auth', 'Login'), ['class' => 'btn btn-lg btn-primary btn-block']) ?>
 
                         <div class="row registration-block">
-                            <div class="col-sm-12">
+                            <div class="col-sm-<?= $col12 ?>">
                                 <?=
                                 AuthChoice::widget([
                                     'baseAuthUrl' => ['/auth/default/oauth', 'language' => false],
@@ -50,10 +54,10 @@ use yii\helpers\Html;
                         </div>
 
                         <div class="row registration-block">
-                            <div class="col-sm-6">
+                            <div class="col-sm-<?= $col6 ?>">
                                 <?= Html::a(Yii::t('yee/auth', "Registration"), ['default/signup']) ?>
                             </div>
-                            <div class="col-sm-6 text-right">
+                            <div class="col-sm-<?= $col6 ?> text-right">
                                 <?= Html::a(Yii::t('yee/auth', "Forgot password?"), ['default/reset-password']) ?>
                             </div>
                         </div>
