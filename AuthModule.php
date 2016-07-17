@@ -28,6 +28,13 @@ class AuthModule extends \yii\base\Module
     public $gridColumns = 12;
     
     /**
+     * Profile layout.
+     *
+     * @var string
+     */
+    public $profileLayout;
+    
+    /**
      * Controller namespace
      *
      * @var string

@@ -554,6 +554,10 @@ class DefaultController extends BaseController
      */
     public function actionProfile()
     {
+        if($this->module->profileLayout){
+            $this->layout = $this->module->profileLayout;
+        }
+                
         if (Yii::$app->user->isGuest) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
