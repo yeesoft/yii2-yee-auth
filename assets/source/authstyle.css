@@ -1,3 +1,7 @@
+.auth-title {
+    display: inline !important;
+}
+
 .auth-clients, .auth-clients .auth-client {
     overflow: hidden;
     margin: 0 !important;
