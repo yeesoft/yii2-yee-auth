@@ -35,8 +35,8 @@ class SignupForm extends Model
             ],
             ['username', 'purgeXSS'],
             ['username', 'string', 'max' => 50],
-            ['username', 'match', 'pattern' => Yii::$app->yee->usernameRegexp],
-            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->yee->usernameBlackRegexp],
+            ['username', 'match', 'pattern' => Yii::$app->yee->usernameRegexp, 'message' => Yii::t('yee/auth', 'The username should contain only Latin letters, numbers and the following characters: "-" and "_".')],
+            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->yee->usernameBlackRegexp, 'message' => Yii::t('yee/auth', 'Username contains not allowed characters or words.')],
             ['password', 'string', 'max' => 255],
             ['repeat_password', 'compare', 'compareAttribute' => 'password'],
         ];

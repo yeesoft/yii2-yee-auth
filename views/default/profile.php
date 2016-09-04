@@ -6,6 +6,7 @@ use yeesoft\auth\widgets\AuthChoice;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yeesoft\helpers\YeeHelper;
 
 /**
  * @var yii\web\View $this
@@ -117,29 +118,67 @@ $col3 = (int) ($col12 / 4);
 
         </div>
 
+        <?php
+        $form = ActiveForm::begin([
+                    'id' => 'user',
+                    'validateOnBlur' => false,
+                ])
+        ?>
+
         <div class="col-md-<?= $col9 ?>">
-            <?php
-            $form = ActiveForm::begin([
-                        'id' => 'user',
-                        'layout' => 'horizontal',
-                        'validateOnBlur' => false,
-                    ])
-            ?>
 
-            <?= $form->field($model, 'username', ['wrapperOptions' => ['class' => 'col-sm-' . $col9]])->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
+            <div class="panel panel-default">
+                <div class="panel-body">
 
-            <?= $form->field($model, 'email', ['wrapperOptions' => ['class' => 'col-sm-' . $col9]])->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
+                    <?= $form->field($model, 'username')->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
 
-            <div class="form-group">
-                <div class="col-sm-offset-<?= $col3 ?> col-sm-<?= $col9 ?>">
-                    <?= Html::submitButton(Yii::t('yee/auth', 'Save Profile'), ['class' => 'btn btn-primary']) ?>
+                    <?= $form->field($model, 'email')->textInput(['maxlength' => 255, 'autofocus' => false]) ?>
+
                 </div>
             </div>
 
-            <?php ActiveForm::end(); ?>
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-<?= $col6 ?>">
+                            <?= $form->field($model, 'first_name')->textInput(['maxlength' => 124]) ?>
+                        </div>
+                        <div class="col-md-<?= $col6 ?>">
+                            <?= $form->field($model, 'last_name')->textInput(['maxlength' => 124]) ?>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-<?= $col3 ?>">
+                            <?= $form->field($model, 'gender')->dropDownList(yeesoft\models\User::getGenderList()) ?>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-<?= $col3 ?>">
+                            <?= $form->field($model, 'birth_day')->textInput(['maxlength' => 2]) ?>
+                        </div>
+                        <div class="col-md-<?= $col3 ?>">
+                            <?= $form->field($model, 'birth_month')->dropDownList(YeeHelper::getMonthsList()) ?>
+                        </div>
+                        <div class="col-md-<?= $col3 ?>">
+                            <?= $form->field($model, 'birth_year')->textInput(['maxlength' => 4]) ?>
+                        </div>
+                    </div>
+
+                    <?= $form->field($model, 'info')->textarea(['maxlength' => 255]) ?>
+
+
+                    
+                </div>
+            </div>
+            
+            <?= Html::submitButton(Yii::t('yee/auth', 'Save Profile'), ['class' => 'btn btn-primary']) ?>
+ 
 
         </div>
-
+        <?php ActiveForm::end(); ?>
     </div>
 </div>
 

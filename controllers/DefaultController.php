@@ -67,39 +67,16 @@ class DefaultController extends BaseController
         ]);
     }
 
-    protected function parseClientAttributes($client)
-    {
-        $authAttributes = AuthModule::getAuthAttributes();
-        $attributes = $client->getUserAttributes();
-        $source = $client->getId();
-
-        $idKey = ($source !== 'odnoklassniki') ? 'id' : 'uid';
-
-        $result = [
-            'source' => (string)$source,
-            'source_id' => (string)$attributes[$idKey],
-        ];
-
-        $emailPath = ArrayHelper::getValue($authAttributes, "$source.email");
-        $email = ($emailPath) ? ArrayHelper::getValue($attributes, $emailPath) : NULL;
-
-        if (!empty($email)) {
-            $result['email'] = (string)$email;
-        }
-
-        $usernamePath = ArrayHelper::getValue($authAttributes, "$source.username");
-        $username = ArrayHelper::getValue($attributes, $usernamePath);
-
-        if (!empty($username)) {
-            $result['username'] = (string)$username;
-        }
-
-        return $result;
-    }
-
     public function onAuthSuccess($client)
     {
-        $attributes = $this->parseClientAttributes($client);
+        $source = $client->getId();
+        $userAttributes = $client->getUserAttributes();
+
+        if(!isset($this->module->attributeParsers[$source])){
+            throw \yii\base\InvalidConfigException("There are no settings for '{$source}' in the AuthModule::attributeParsers.");
+        }
+             
+        $attributes = $this->module->attributeParsers[$source]($userAttributes);
         Yii::$app->session->set(AuthModule::PARAMS_SESSION_ID, $attributes);
 
         /* @var $auth Auth */
@@ -217,12 +194,17 @@ class DefaultController extends BaseController
 
     protected function createUser($attributes)
     {
-        $user = new User([
-            'username' => isset($attributes['username']) ? $attributes['username'] : NULL,
-            'email' => isset($attributes['email']) ? $attributes['email'] : NULL,
-            'password' => isset($attributes['password']) ? $attributes['password'] : NULL,
-            'repeat_password' => isset($attributes['password']) ? $attributes['password'] : NULL,
-        ]);
+        $auth = [
+            'source' => (string) $attributes['source'],
+            'source_id' => (string) $attributes['source_id'],
+        ];
+        
+        unset($attributes['source']);
+        unset($attributes['source_id']);
+        
+        $attributes['repeat_password'] = isset($attributes['password']) ? $attributes['password'] : NULL;
+        
+        $user = new User($attributes);
 
         $user->setScenario(User::SCENARIO_NEW_USER);
         $user->generateAuthKey();
@@ -234,8 +216,8 @@ class DefaultController extends BaseController
 
             $auth = new Auth([
                 'user_id' => $user->id,
-                'source' => $attributes['source'],
-                'source_id' => $attributes['source_id'],
+                'source' => $auth['source'],
+                'source_id' => $auth['source_id'],
             ]);
 
             if ($auth->save()) {
