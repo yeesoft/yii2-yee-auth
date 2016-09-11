@@ -166,11 +166,18 @@ $col3 = (int) ($col12 / 4);
                             <?= $form->field($model, 'birth_year')->textInput(['maxlength' => 4]) ?>
                         </div>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-md-<?= $col6 ?>">
+                            <?= $form->field($model, 'skype')->textInput(['maxlength' => 64]) ?>
+                        </div>
+                        <div class="col-md-<?= $col6 ?>">
+                            <?= $form->field($model, 'phone')->textInput(['maxlength' => 24]) ?>
+                        </div>
+                    </div>
 
                     <?= $form->field($model, 'info')->textarea(['maxlength' => 255]) ?>
 
-
-                    
                 </div>
             </div>
             
