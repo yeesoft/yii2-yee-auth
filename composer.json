@@ -9,9 +9,9 @@
     }
   ],
   "require": {
-    "yiisoft/yii2-authclient": "*",
-    "yeesoft/yii2-yee-core": "dev-master",
-    "yeesoft/yii2-yee-user": "dev-master"
+    "yiisoft/yii2-authclient": "~2.1.0",
+    "yeesoft/yii2-yee-core": "~0.1.0",
+    "yeesoft/yii2-yee-user": "~0.1.0"
   },
   "autoload": {
     "psr-4": {

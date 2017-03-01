@@ -14,13 +14,13 @@ Installation
 Either run
 
 ```
-composer require --prefer-dist yeesoft/yii2-yee-auth "*"
+composer require --prefer-dist yeesoft/yii2-yee-auth "~0.1.0"
 ```
 
 or add
 
 ```
-"yeesoft/yii2-yee-auth": "*"
+"yeesoft/yii2-yee-auth": "~0.1.0"
 ```
 
 to the require section of your `composer.json` file.
