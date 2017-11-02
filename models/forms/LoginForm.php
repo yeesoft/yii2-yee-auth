@@ -42,7 +42,7 @@ class LoginForm extends Model
      */
     public function validatePassword()
     {
-        if (!Yii::$app->yee->checkAttempts()) {
+        if (!Yii::$app->checkAttempts()) {
             $this->addError('password', Yii::t('yee/auth', 'Too many attempts'));
             return false;
         }

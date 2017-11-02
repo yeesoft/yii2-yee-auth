@@ -35,8 +35,8 @@ class SignupForm extends Model
             ],
             ['username', 'purgeXSS'],
             ['username', 'string', 'max' => 50],
-            ['username', 'match', 'pattern' => Yii::$app->yee->usernameRegexp, 'message' => Yii::t('yee/auth', 'The username should contain only Latin letters, numbers and the following characters: "-" and "_".')],
-            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->yee->usernameBlackRegexp, 'message' => Yii::t('yee/auth', 'Username contains not allowed characters or words.')],
+            ['username', 'match', 'pattern' => Yii::$app->usernameRegexp, 'message' => Yii::t('yee/auth', 'The username should contain only Latin letters, numbers and the following characters: "-" and "_".')],
+            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->usernameBlackRegexp, 'message' => Yii::t('yee/auth', 'Username contains not allowed characters or words.')],
             ['password', 'string', 'max' => 255],
             ['repeat_password', 'compare', 'compareAttribute' => 'password'],
         ];
@@ -84,7 +84,7 @@ class SignupForm extends Model
         $user->username = $this->username;
         $user->email = $this->email;
 
-        if (Yii::$app->yee->emailConfirmationRequired) {
+        if (Yii::$app->emailConfirmationRequired) {
             $user->status = User::STATUS_INACTIVE;
             $user->generateConfirmationToken();
             // $user->save(false);
@@ -110,8 +110,8 @@ class SignupForm extends Model
      */
     protected function sendConfirmationEmail($user)
     {
-        return Yii::$app->mailer->compose(Yii::$app->yee->emailTemplates['signup-confirmation'], ['user' => $user])
-            ->setFrom(Yii::$app->yee->emailSender)
+        return Yii::$app->mailer->compose(Yii::$app->emailTemplates['signup-confirmation'], ['user' => $user])
+            ->setFrom(Yii::$app->emailSender)
             ->setTo($user->email)
             ->setSubject(Yii::t('yee/auth', 'E-mail confirmation for') . ' ' . Yii::$app->name)
             ->send();
@@ -134,7 +134,7 @@ class SignupForm extends Model
             $user->email_confirmed = 1;
             $user->removeConfirmationToken();
             $user->save(false);
-            $user->assignRoles(Yii::$app->yee->defaultRoles);
+            $user->assignRoles(Yii::$app->defaultRoles);
             Yii::$app->user->login($user);
 
             return $user;

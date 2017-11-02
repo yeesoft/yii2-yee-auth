@@ -42,7 +42,7 @@ class ResetPasswordForm extends Model
      */
     public function validateEmailConfirmedAndUserActive()
     {
-        if (!Yii::$app->yee->checkAttempts()) {
+        if (!Yii::$app->checkAttempts()) {
             $this->addError('email', Yii::t('yee/auth', 'Too many attempts'));
             return false;
         }
@@ -85,9 +85,9 @@ class ResetPasswordForm extends Model
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->yee->emailTemplates['password-reset'],
+        return Yii::$app->mailer->compose(Yii::$app->emailTemplates['password-reset'],
             ['user' => $this->user])
-            ->setFrom(Yii::$app->yee->emailSender)
+            ->setFrom(Yii::$app->emailSender)
             ->setTo($this->email)
             ->setSubject(Yii::t('yee/auth', 'Password reset for') . ' ' . Yii::$app->name)
             ->send();

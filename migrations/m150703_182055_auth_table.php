@@ -3,7 +3,7 @@
 use yii\db\Migration;
 use yii\db\Schema;
 
-class m150703_182055_create_auth_table extends Migration
+class m150703_182055_auth_table extends Migration
 {
 
     const TABLE_NAME = '{{%auth}}';
@@ -22,7 +22,7 @@ class m150703_182055_create_auth_table extends Migration
             'source_id' => $this->string(255)->notNull(),
         ], $tableOptions);
 
-        $this->addForeignKey('fk_auth_user', self::TABLE_NAME, 'user_id', '{{%user}}', 'id', 'RESTRICT', 'RESTRICT');
+        $this->addForeignKey('fk_auth_user', self::TABLE_NAME, 'user_id', '{{%user}}', 'id', 'CASCADE', 'CASCADE');
     }
 
     public function safeDown()

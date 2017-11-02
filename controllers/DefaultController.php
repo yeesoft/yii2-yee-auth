@@ -45,7 +45,7 @@ class DefaultController extends BaseController
     public function actions()
     {
         return [
-            'captcha' => Yii::$app->yee->captchaAction,
+            'captcha' => Yii::$app->captchaAction,
             'oauth' => [
                 'class' => 'yeesoft\auth\AuthAction',
                 'successCallback' => [$this, 'onAuthSuccess'],
@@ -309,10 +309,10 @@ class DefaultController extends BaseController
                 // Trigger event "after registration" and checks if it's valid
                 if ($user && $this->triggerModuleEvent(AuthEvent::AFTER_REGISTRATION, ['model' => $model, 'user' => $user])) {
 
-                    if (Yii::$app->yee->emailConfirmationRequired) {
+                    if (Yii::$app->emailConfirmationRequired) {
                         return $this->renderIsAjax('signup-confirmation', compact('user'));
                     } else {
-                        $user->assignRoles(Yii::$app->yee->defaultRoles);
+                        $user->assignRoles(Yii::$app->defaultRoles);
 
                         Yii::$app->user->login($user);
 
@@ -335,7 +335,7 @@ class DefaultController extends BaseController
      */
     public function actionConfirmRegistrationEmail($token)
     {
-        if (Yii::$app->yee->emailConfirmationRequired) {
+        if (Yii::$app->emailConfirmationRequired) {
 
             $model = new SignupForm();
             $user = $model->checkConfirmationToken($token);
@@ -526,7 +526,7 @@ class DefaultController extends BaseController
     {
         $event = new AuthEvent($data);
 
-        Yii::$app->yee->trigger($eventName, $event);
+        Yii::$app->trigger($eventName, $event);
 
         return $event->isValid;
     }

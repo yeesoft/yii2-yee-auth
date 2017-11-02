@@ -58,7 +58,7 @@ class UpdatePasswordForm extends Model
      */
     public function validateCurrentPassword()
     {
-        if (!Yii::$app->yee->checkAttempts()) {
+        if (!Yii::$app->checkAttempts()) {
             $this->addError('current_password', Yii::t('yee/auth', 'Too many attempts'));
             return false;
         }
