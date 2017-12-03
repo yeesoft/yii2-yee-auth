@@ -360,7 +360,7 @@ class DefaultController extends BaseController
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
-        $user = User::getCurrentUser();
+        $user = Yii::$app->user->identity;
 
         if ($user->status != User::STATUS_ACTIVE) {
             throw new ForbiddenHttpException();
@@ -460,7 +460,7 @@ class DefaultController extends BaseController
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
-        $user = User::getCurrentUser();
+        $user = Yii::$app->user->identity;
 
         if ($user->email_confirmed == 1) {
             return $this->renderIsAjax('confirmEmailSuccess', compact('user'));

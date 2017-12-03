@@ -159,12 +159,6 @@ $col3 = (int) ($col12 / 4);
                         <div class="col-md-<?= $col3 ?>">
                             <?= $form->field($model, 'birth_day')->textInput(['maxlength' => 2]) ?>
                         </div>
-                        <div class="col-md-<?= $col3 ?>">
-                            <?= $form->field($model, 'birth_month')->dropDownList(YeeHelper::getMonthsList()) ?>
-                        </div>
-                        <div class="col-md-<?= $col3 ?>">
-                            <?= $form->field($model, 'birth_year')->textInput(['maxlength' => 4]) ?>
-                        </div>
                     </div>
                     
                     <div class="row">
