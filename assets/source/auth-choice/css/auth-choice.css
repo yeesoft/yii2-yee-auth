@@ -1,0 +1,11 @@
+.auth-clients-list {
+    overflow: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.auth-clients-list li {
+    display: block !important;
+    float: none !important;
+    padding: 4px;
+}

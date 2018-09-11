@@ -9,10 +9,11 @@ use yii\base\Model;
 
 class LoginForm extends Model
 {
+
     public $username;
     public $password;
-    public $rememberMe = false;
-    private $_user = false;
+    public $rememberMe = true;
+    private $_user;
 
     /**
      * @inheritdoc
@@ -20,10 +21,9 @@ class LoginForm extends Model
     public function rules()
     {
         return [
-            [['username', 'password'], 'required'],
-            ['rememberMe', 'boolean'],
-            ['password', 'validatePassword'],
-            ['username', 'validateIP'],
+                [['username', 'password'], 'required'],
+                ['rememberMe', 'boolean'],
+                ['password', 'validatePassword'],
         ];
     }
 
@@ -39,18 +39,21 @@ class LoginForm extends Model
     /**
      * Validates the password.
      * This method serves as the inline validation for password.
+     *
+     * @param string $attribute the attribute currently being validated
+     * @param array $params the additional name-value pairs given in the rule
      */
-    public function validatePassword()
+    public function validatePassword($attribute, $params)
     {
         if (!Yii::$app->checkAttempts()) {
-            $this->addError('password', Yii::t('yee/auth', 'Too many attempts'));
+            $this->addError($attribute, Yii::t('yee/auth', 'Too many attempts. Please try again later.'));
             return false;
         }
 
         if (!$this->hasErrors()) {
             $user = $this->getUser();
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError('password', Yii::t('yee/auth', 'Incorrect username or password'));
+                $this->addError($attribute, Yii::t('yee/auth', 'The username or password you entered is incorrect.'));
             }
         }
     }
@@ -62,12 +65,12 @@ class LoginForm extends Model
     {
         $user = $this->getUser();
 
-        if ($user AND $user->bind_to_ip) {
+        if ($user && $user->bind_to_ip) {
             $ips = explode(',', $user->bind_to_ip);
             $ips = array_map('trim', $ips);
 
             if (!in_array(YeeHelper::getRealIp(), $ips)) {
-                $this->addError('password', Yii::t('yee/auth', "You could not login from this IP"));
+                $this->addError('password', Yii::t('yee/auth', "You can not log in from this IP address."));
             }
         }
     }
@@ -79,8 +82,7 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(),
-                $this->rememberMe ? 3600 * 24 * 30 : 0);
+            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
         } else {
             return false;
         }
@@ -90,12 +92,12 @@ class LoginForm extends Model
      * Finds user by [[username]]
      * @return User|null
      */
-    public function getUser()
+    protected function getUser()
     {
-        if ($this->_user === false) {
+        if ($this->_user === null) {
             $this->_user = User::findByUsername($this->username);
         }
-
         return $this->_user;
     }
+
 }

@@ -8,6 +8,8 @@ use yii\base\Model;
 
 class UpdatePasswordForm extends Model
 {
+    const SCENARIO_EMAIL_RESET = 'email-reset';
+
     /**
      * @var User
      */
@@ -39,8 +41,8 @@ class UpdatePasswordForm extends Model
             [['password', 'repeat_password', 'current_password'], 'string', 'min' => 6],
             [['password', 'repeat_password', 'current_password'], 'trim'],
             ['repeat_password', 'compare', 'compareAttribute' => 'password'],
-            ['current_password', 'required', 'except' => 'restoreViaEmail'],
-            ['current_password', 'validateCurrentPassword', 'except' => 'restoreViaEmail'],
+            ['current_password', 'required', 'except' => self::SCENARIO_EMAIL_RESET],
+            ['current_password', 'validateCurrentPassword', 'except' => self::SCENARIO_EMAIL_RESET],
         ];
     }
 
@@ -59,12 +61,12 @@ class UpdatePasswordForm extends Model
     public function validateCurrentPassword()
     {
         if (!Yii::$app->checkAttempts()) {
-            $this->addError('current_password', Yii::t('yee/auth', 'Too many attempts'));
+            $this->addError('current_password', Yii::t('yee/auth', 'Too many attempts. Please try again later.'));
             return false;
         }
 
         if (!Yii::$app->security->validatePassword($this->current_password, $this->user->password_hash)) {
-            $this->addError('current_password', Yii::t('yee/auth', "Wrong password"));
+            $this->addError('current_password', Yii::t('yee/auth', 'The password that you have entered is incorrect.'));
         }
     }
 

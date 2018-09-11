@@ -2,9 +2,10 @@
 
 namespace yeesoft\auth\models\forms;
 
-use yeesoft\models\User;
 use Yii;
 use yii\base\Model;
+use yeesoft\models\User;
+use yeesoft\auth\AuthModule;
 
 class ResetPasswordForm extends Model
 {
@@ -43,7 +44,7 @@ class ResetPasswordForm extends Model
     public function validateEmailConfirmedAndUserActive()
     {
         if (!Yii::$app->checkAttempts()) {
-            $this->addError('email', Yii::t('yee/auth', 'Too many attempts'));
+            $this->addError('email', Yii::t('yee/auth', 'Too many attempts. Please try again later.'));
             return false;
         }
 
@@ -56,7 +57,7 @@ class ResetPasswordForm extends Model
         if ($user) {
             $this->user = $user;
         } else {
-            $this->addError('email', Yii::t('yee/auth', 'E-mail is invalid'));
+            $this->addError('email', Yii::t('yee/auth', 'Your account is not active.'));
         }
     }
 
@@ -66,7 +67,7 @@ class ResetPasswordForm extends Model
     public function attributeLabels()
     {
         return [
-            'email' => 'E-mail',
+            'email' => 'Email',
             'captcha' => Yii::t('yee/auth', 'Captcha'),
         ];
     }
@@ -81,15 +82,17 @@ class ResetPasswordForm extends Model
         if ($performValidation AND !$this->validate()) {
             return false;
         }
-
+       
         $this->user->generateConfirmationToken();
         $this->user->save(false);
 
-        return Yii::$app->mailer->compose(Yii::$app->emailTemplates['password-reset'],
-            ['user' => $this->user])
+        $subject = Yii::t('yee/auth', '[{sitename}] Please reset your password', ['sitename' => Yii::$app->name]);
+        $view = Yii::$app->controller->module->emailTemplates[AuthModule::EMAIL_PASSWORD_RESET];
+        
+        return Yii::$app->mailer->compose($view, ['user' => $this->user])
             ->setFrom(Yii::$app->emailSender)
             ->setTo($this->email)
-            ->setSubject(Yii::t('yee/auth', 'Password reset for') . ' ' . Yii::$app->name)
+            ->setSubject($subject)
             ->send();
     }
 }

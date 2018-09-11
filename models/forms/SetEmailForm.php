@@ -2,9 +2,9 @@
 
 namespace yeesoft\auth\models\forms;
 
-use yeesoft\models\User;
 use Yii;
 use yii\base\Model;
+use yeesoft\models\User;
 
 class SetEmailForm extends Model
 {
@@ -28,7 +28,7 @@ class SetEmailForm extends Model
     }
 
     /**
-     * Check that there is no such E-mail in the system
+     * Check that there is no such email address in the system
      */
     public function validateEmailUnique()
     {
@@ -39,7 +39,7 @@ class SetEmailForm extends Model
             ]);
 
             if ($exists) {
-                $this->addError('email', Yii::t('yee/auth', 'This E-mail already exists'));
+                $this->addError('email', Yii::t('yee/auth', 'The email address you have entered is already registered.'));
             }
         }
     }
@@ -50,7 +50,7 @@ class SetEmailForm extends Model
     public function attributeLabels()
     {
         return [
-            'email' => 'E-mail',
+            'email' => 'Email',
         ];
     }
 

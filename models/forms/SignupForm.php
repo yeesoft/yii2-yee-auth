@@ -2,10 +2,11 @@
 
 namespace yeesoft\auth\models\forms;
 
-use yeesoft\models\User;
 use Yii;
 use yii\base\Model;
 use yii\helpers\Html;
+use yeesoft\models\User;
+use yeesoft\auth\AuthModule;
 
 class SignupForm extends Model
 {
@@ -14,6 +15,7 @@ class SignupForm extends Model
     public $password;
     public $repeat_password;
     public $captcha;
+    public $terms = false;
 
     /**
      * @inheritdoc
@@ -22,9 +24,10 @@ class SignupForm extends Model
     {
         $rules = [
             ['captcha', 'captcha', 'captchaAction' => '/auth/default/captcha'],
-            [['username', 'email', 'password', 'repeat_password', 'captcha'], 'required'],
+            [['username', 'email', 'password', 'repeat_password', 'captcha', 'terms'], 'required'],
             [['username', 'email', 'password', 'repeat_password'], 'trim'],
             [['email'], 'email'],
+            [['terms'], 'boolean'],
             ['username', 'unique',
                 'targetClass' => 'yeesoft\models\User',
                 'targetAttribute' => 'username',
@@ -36,7 +39,7 @@ class SignupForm extends Model
             ['username', 'purgeXSS'],
             ['username', 'string', 'max' => 50],
             ['username', 'match', 'pattern' => Yii::$app->usernameRegexp, 'message' => Yii::t('yee/auth', 'The username should contain only Latin letters, numbers and the following characters: "-" and "_".')],
-            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->usernameBlackRegexp, 'message' => Yii::t('yee/auth', 'Username contains not allowed characters or words.')],
+            ['username', 'match', 'not' => true, 'pattern' => Yii::$app->usernameBlackRegexp, 'message' => Yii::t('yee/auth', 'This username is not available. It contains not allowed characters or words.')],
             ['password', 'string', 'max' => 255],
             ['repeat_password', 'compare', 'compareAttribute' => 'password'],
         ];
@@ -61,7 +64,7 @@ class SignupForm extends Model
     {
         return [
             'username' => Yii::t('yee/auth', 'Login'),
-            'email' => Yii::t('yee/auth', 'E-mail'),
+            'email' => Yii::t('yee/auth', 'Email'),
             'password' => Yii::t('yee/auth', 'Password'),
             'repeat_password' => Yii::t('yee/auth', 'Repeat password'),
             'captcha' => Yii::t('yee/auth', 'Captcha'),
@@ -84,18 +87,18 @@ class SignupForm extends Model
         $user->username = $this->username;
         $user->email = $this->email;
 
-        if (Yii::$app->emailConfirmationRequired) {
+        if (Yii::$app->controller->module->enableEmailConfirmation) {
             $user->status = User::STATUS_INACTIVE;
             $user->generateConfirmationToken();
             // $user->save(false);
 
             if (!$this->sendConfirmationEmail($user)) {
-                $this->addError('username', Yii::t('yee/auth', 'Could not send confirmation email'));
+                $this->addError('username', Yii::t('yee/auth', 'An error occurred while sending mail. Please try again.'));
             }
         }
 
         if (!$user->save()) {
-            $this->addError('username', Yii::t('yee/auth', 'Login has been taken'));
+            $this->addError('username', Yii::t('yee/auth', 'Username has already been taken. Please choose another username.'));
         } else {
             return $user;
         }
@@ -110,36 +113,16 @@ class SignupForm extends Model
      */
     protected function sendConfirmationEmail($user)
     {
-        return Yii::$app->mailer->compose(Yii::$app->emailTemplates['signup-confirmation'], ['user' => $user])
+        /* @var $mailer \yii\swiftmailer\Mailer */
+        $mailer = Yii::$app->mailer;
+        $view = Yii::$app->controller->module->emailTemplates[AuthModule::EMAIL_SIGNUP_CONFIRMATION];
+        $subject = Yii::t('yee/auth', '[{sitename}] Please verify your email address.', ['sitename' => Yii::$app->name]);
+
+        return $mailer->compose($view, ['user' => $user])
             ->setFrom(Yii::$app->emailSender)
             ->setTo($user->email)
-            ->setSubject(Yii::t('yee/auth', 'E-mail confirmation for') . ' ' . Yii::$app->name)
+            ->setSubject($subject)
             ->send();
     }
 
-    /**
-     * Check received confirmation token and if user found - activate it, set username, roles and log him in
-     *
-     * @param string $token
-     *
-     * @return bool|User
-     */
-    public function checkConfirmationToken($token)
-    {
-        $user = User::findInactiveByConfirmationToken($token);
-
-        if ($user) {
-            
-            $user->status = User::STATUS_ACTIVE;
-            $user->email_confirmed = 1;
-            $user->removeConfirmationToken();
-            $user->save(false);
-            $user->assignRoles(Yii::$app->defaultRoles);
-            Yii::$app->user->login($user);
-
-            return $user;
-        }
-
-        return false;
-    }
 }

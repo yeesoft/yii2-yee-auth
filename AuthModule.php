@@ -8,143 +8,109 @@
 
 namespace yeesoft\auth;
 
-use yii\helpers\ArrayHelper;
-use yii\helpers\Inflector;
-use yeesoft\models\User;
+use yii\base\Module;
 
 /**
- * Auth Module For Yee CMS
+ * Authorization Module For Yee CMS
  *
  * @author Taras Makitra <makitrataras@gmail.com>
  */
-class AuthModule extends \yii\base\Module
+class AuthModule extends Module
 {
 
     /**
-     * Version number of the module.
+     * User attributes session key. Used to complete the registration of the user 
+     * when registering via OAuth.
      */
-    const VERSION = '0.2.0';
-    const PARAMS_SESSION_ID = 'authUserParams';
+    const USER_ATTRIBUTES_SESSION_KEY = 'authUserParams';
 
     /**
-     * Bootstrap grid columns count.
-     *
-     * @var int
+     * Key for sign up confirmation email.
      */
-    public $gridColumns = 12;
+    const EMAIL_SIGNUP_CONFIRMATION = 'signup-confirmation';
 
     /**
-     * Profile layout.
-     *
-     * @var string
+     * Key for password reset email.
      */
-    public $profileLayout;
+    const EMAIL_PASSWORD_RESET = 'password-reset';
 
     /**
-     * List of functions for parsing user auth data. This list will be merged with
-     * parsers from `AuthModule::getDefaultAttributeParsers()`. You can overwrite
-     * default parsers.
-     *
-     * @var array
-     */
-    public $attributeParsers;
-
-    /**
-     * Controller namespace
-     *
-     * @var string
+     * @var string controller namespace.
      */
     public $controllerNamespace = 'yeesoft\auth\controllers';
 
     /**
-     * @inheritdoc
+     * @var bool whether to enable new user registration functionality.
+     * Defaults to true.
      */
-    public function init()
-    {
-        if ($this->attributeParsers === null) {
-            $this->attributeParsers = [];
-        }
-        
-        $this->attributeParsers = ArrayHelper::merge(self::getDefaultAttributeParsers(), $this->attributeParsers) ;
-    }
+    public $enableRegistration = true;
 
-    public static function getDefaultAttributeParsers()
-    {
-        return [
-            'google' => function($attributes) {
-                $result['source'] = 'google';
-                $result['source_id'] = ArrayHelper::getValue($attributes, 'id');
-                $result['email'] = ArrayHelper::getValue($attributes, 'emails.0.value');
-                $username = ArrayHelper::getValue($attributes, 'displayName');
-                $result['username'] = Inflector::slug($username, '_');
-                $result['first_name'] = ArrayHelper::getValue($attributes, 'name.givenName');
-                $result['last_name'] = ArrayHelper::getValue($attributes, 'name.familyName');
-                return $result;
-            },
-            'facebook' => function($attributes) {
-                $result['source'] = 'facebook';
-                $result['source_id'] = ArrayHelper::getValue($attributes, 'id');
-                $result['email'] = ArrayHelper::getValue($attributes, 'email');
-                $username = ArrayHelper::getValue($attributes, 'name');
-                $result['username'] = Inflector::slug($username, '_');
-                return $result;
-            },
-            'twitter' => function($attributes) {
-                $result['source'] = 'twitter';
-                $result['source_id'] = ArrayHelper::getValue($attributes, 'id');
-                $result['email'] = null;
-                $username = ArrayHelper::getValue($attributes, 'screen_name');
-                $result['username'] = Inflector::slug($username, '_');
-                $result['first_name'] = ArrayHelper::getValue($attributes, 'name');
-                return $result;
-            },
-            'github' => function($attributes) {
-                $result['source'] = 'github';
-                $result['source_id'] = ArrayHelper::getValue($attributes, 'id');
-                $result['email'] = ArrayHelper::getValue($attributes, 'email');
-                $username = ArrayHelper::getValue($attributes, 'name');
-                $result['username'] = Inflector::slug($username, '_');
-                return $result;
-            },
-            'linkedin' => function($attributes) {
-                $result['source'] = 'linkedin';
-                $result['source_id'] = ArrayHelper::getValue($attributes, 'id');
-                $result['email'] = ArrayHelper::getValue($attributes, 'email');
-                $username = ArrayHelper::getValue($attributes, 'first-name');
-                $result['username'] = Inflector::slug($username, '_');
-                return $result;
-            },
-            'vkontakte' => function($attributes) {
-                $result['source'] = 'vkontakte';
-                $result['source_id'] = ArrayHelper::getValue($attributes, 'id');
-                $result['email'] = ArrayHelper::getValue($attributes, 'email');
-                $result['first_name'] = ArrayHelper::getValue($attributes, 'first_name');
-                $result['last_name'] = ArrayHelper::getValue($attributes, 'last_name');
-                
-                $username = $result['first_name'] . ' ' . $result['last_name'];
-                $result['username'] = Inflector::slug($username, '_');
-                
-                $gender = ArrayHelper::getValue($attributes, 'sex');
-                if($gender == 2){
-                    $result['gender'] = User::GENDER_MALE;
-                } elseif($gender == 1){
-                    $result['gender'] = User::GENDER_FEMALE;
-                } else {
-                    $result['gender'] = User::GENDER_NOT_SET;
-                }
-                
-                $birthday = ArrayHelper::getValue($attributes, 'bdate');
-                if ($birthday) {
-                    $values = explode('.', $birthday);
-                    $result['birth_day'] = isset($values[0]) ? $values[0] : null;
-                    $result['birth_month'] = isset($values[1]) ? $values[1] : null;
-                    $result['birth_year'] = isset($values[2]) ? $values[2] : null;
-                }
-                
-                return $result;
-            },
-            
-        ];
-    }
+    /**
+     * @var bool whether to enable oAuth functionality.
+     * Defaults to true.
+     */
+    public $enableOAuth = true;
+
+    /**
+     * @var bool whether to enable profile functionality.
+     * Defaults to true.
+     */
+    public $enableProfile = true;
+
+    /**
+     * @var bool whether to enable password reset functionality.
+     * Defaults to true.
+     */
+    public $enablePasswordReset = true;
+
+    /**
+     * @var bool whether is it required to confirm email after registration.
+     * The account will be activated after confirmation by the user.
+     */
+    public $enableEmailConfirmation = true;
+    
+    /**
+     * @var array|string|bool link to the terms and conditions page. 
+     * User will be asked to confirm terms and conditions before registration.
+     * If this value is set to false, the confirmation will be hidden.
+     * Defaults to false. 
+     */
+    public $termsAndConditions = false;
+
+    /**
+     * @var array list of classes for parsing user authorization data.
+     */
+    public $attributeParsers = [
+        'google' => 'yeesoft\auth\parsers\GoogleAttributesParser',
+        'facebook' => 'yeesoft\auth\parsers\FacebookAttributesParser',
+    ];
+
+    /**
+     * @var int default duration in seconds before the confirmation token will expire.
+     */
+    public $confirmationTokenLifetime = 3600;
+
+    /**
+     * @var string layout file for authorization module.
+     */
+    public $layout = '@vendor/yeesoft/yii2-yee-auth/views/layouts/main';
+
+    /**
+     * @var string|boolean logo view file. If false, logo will be removed from all pages.
+     */
+    public $logo = '@vendor/yeesoft/yii2-yee-auth/views/logo';
+    
+    /**
+     * @var string profile pages layout.
+     */
+    public $profileLayout;
+    
+    /**
+     * @var array email templates.
+     */
+    public $emailTemplates = [
+        self::EMAIL_SIGNUP_CONFIRMATION => '/mail/signup-confirmation',
+        self::EMAIL_PASSWORD_RESET => '/mail/password-reset',
+    ];
 
 }

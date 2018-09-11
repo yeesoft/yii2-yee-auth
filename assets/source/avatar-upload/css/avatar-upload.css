@@ -1,0 +1,63 @@
+.avatar-upload {
+    text-align: center;
+}
+
+.avatar-upload input[type="file"] {
+    filter: alpha(opacity=0);
+    opacity: 0;
+    display: block;
+    width: 0;
+    height: 0;
+}
+
+.avatar-upload .btn, .avatar-upload input {
+    outline: none !important;
+}
+
+.avatar-upload .avatar-preview {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+.avatar-upload .avatar-preview img {
+    width: 100%;
+    height: 100%;
+}
+
+.avatar-upload .avatar-preview:hover .upload-button,
+.avatar-upload .avatar-preview:hover .remove-button
+{
+    display: block;
+}
+
+.avatar-upload .avatar-preview .upload-button {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    position: absolute;
+    background: white;
+    filter: alpha(opacity=40);
+    opacity: 0.4;
+    padding-top: 80px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: sans-serif;
+    border-radius: 5px;
+}
+
+.avatar-upload .avatar-preview .remove-button {
+    top: 0;
+    right: 0;
+    margin: 5px 7px;
+    display: none; 
+    position: absolute;
+    cursor: pointer;
+}
